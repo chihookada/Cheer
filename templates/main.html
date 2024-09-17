@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Title</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" type="text/css" media='screen' href="{% static 'styles/main.css' %}">
+    </head>
+
+    <body> 
+        <div class="home-content">
+            <div class="background-image"></div>
+            
+            <div class='sidenav-button'>
+                <button class="toggle-btn" onclick="toggleNav()">☰</button>
+            </div>
+            <div class='sidenav' id="sidenav">
+                <button onclick="toggleNav()">☰</button>
+
+                <div class="sidenav-content">
+                    <a href="/">ホーム</a>
+                    <a href="/history">履歴</a>
+                    <a href="/favorite">お気に入り</a>
+                    <a href="/settings">設定</a>
+                </div>
+                
+            </div>
+            <div id='content' name='content', class="content">
+
+            {% block content %}
+            {% endblock %}
+
+            </div>
+        </div>
+
+        <script>
+            let isNavOpen = false;
+        
+            function toggleNav() {
+                const sidenav = document.getElementById("sidenav");
+                if (isNavOpen) {
+                    sidenav.style.visibility = "hidden"; // Close the side nav
+                } else {
+                    sidenav.style.visibility = "visible"; // Open the side nav
+                }
+                isNavOpen = !isNavOpen; // Toggle the state
+            }
+        </script>
+
+    </body>
+</html>
