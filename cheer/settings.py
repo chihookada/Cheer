@@ -18,7 +18,8 @@ import environ
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 env = environ.Env()
-env.read_env(os.path.join(BASE_DIR, '.env'))
+environ.Env.read_env()
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -41,8 +42,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'livereload',
 
     'home.apps.HomeConfig',
+    'post.apps.PostConfig',
+    'login.apps.LoginConfig',
 ]
 
 MIDDLEWARE = [
@@ -53,6 +57,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'livereload.middleware.LiveReloadScript',
 ]
 
 ROOT_URLCONF = 'cheer.urls'
@@ -85,26 +90,25 @@ if os.getenv('GAE_APPLICATION', None):
 # for deployment
     DATABASES = {
         'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'HOST': '/cloudsql/{}'.format(env('DB_HOST')),
-        'USER': env('DB_USER'),
-        'PASSWORD': env('DB_PASSWORD'),
-        'NAME': env('DB_NAME'),
+            'ENGINE': 'django.db.backends.mysql',
+            'HOST': '/cloudsql/{}'.format(env('DB_HOST')),
+            'USER': env('DB_USER'),
+            'PASSWORD': env('DB_PASSWORD'),
+            'NAME': env('DB_NAME'),
         }
     }
 else:
 # for local environment
     DATABASES = {
         'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'HOST': '127.0.0.1',
-        'PORT': '3306',
-        'USER': env('DB_USER'),
-        'PASSWORD':  env('DB_PASSWORD'),
-        'NAME': env('DB_NAME'),
+            'ENGINE': 'django.db.backends.mysql',
+            'HOST': '127.0.0.1',
+            'PORT': '3306',
+            'USER': env('DB_USER'),
+            'PASSWORD': env('DB_PASSWORD'),
+            'NAME': env('DB_NAME'),
         }
     }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

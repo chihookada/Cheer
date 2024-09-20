@@ -1,0 +1,17 @@
+{% extends 'main.html' %}
+
+{% block content %}
+<div class="completed-content">
+    {% include 'navbar.html' %}
+    {% include 'title.html' %}
+
+    <div class="thanks-container">
+        <h3>投稿されました。ありがとうございました。</h3>
+    </div>
+
+    <div class="go-post">
+        <p>もっと投稿しますか？</p>
+        <a href="{% url 'new-post' %}" class="go-post-button">投稿する</a>
+    </div>
+</div>
+{% endblock %}

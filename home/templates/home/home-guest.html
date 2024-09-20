@@ -2,9 +2,9 @@
 
 {% block content %}
 <div class="home-guest-content">
-    <h1>きょうのひとこと</h1>
+    {% include 'title.html' %}
 
-    <button>ログインしてうけとる</button>
+    <a href="{% url 'login' %}">ログインしてうけとる</a>
 
     <p>このページでは匿名で励ましの言葉やお気に入りの言葉を受け取ったり、送ったりすることができます。</p>
 

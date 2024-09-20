@@ -1,0 +1,64 @@
+{% extends 'main.html' %}
+
+{% block content %}
+{% if page == 'login' %}
+<div class="login-content">
+    <div>
+        {% include 'title.html' %}
+        <form method="POST" action="">
+            {% csrf_token%}
+            <label>ユーザーネーム</label>
+            <input type="text" name="username" placeholder="ユーザーネームを入力"/>
+
+            {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+
+            <label>パスワード</label>
+            <input type="password" name="password" placeholder="パスワードを入力"/>
+
+            <input type="submit" value="ログイン"/>
+        </form>
+    </div>
+
+    <div>
+        <p>アカウントがまだない場合は<a href="{% url 'register' %}">こちら</a></p>
+        
+    </div>
+</div>
+
+{% else %}
+<div class="register-content"></div>
+    {% include 'title.html' %}
+    <form method="POST" action="">
+        {% csrf_token%}
+        <label>ユーザーネーム（他のユーザーに表示されることはありません）</label>
+        <input type="text" name="username" placeholder="ユーザーネームを入力"/>
+
+        <label>パスワード（最低8文字）</label>
+        <input type="password" name="password" placeholder="パスワードを入力"/>
+
+        <label>再入力</label>
+        <input type="password" name="re-password" placeholder="パスワードを入力"/>
+
+        <input type="submit" value="作成"/>
+        
+        {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+            <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+
+    </form>
+
+    <p>すでにアカウントをお持ちの方は<a href="{% url 'login' %}">ログイン</a>してください</p>
+
+</div>
+{% endif %}
+{% endblock %}
