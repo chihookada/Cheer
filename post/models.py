@@ -2,11 +2,6 @@ from django.db import models
 # from django.contrib.auth.models import User
 
 # Create your models here.
-# class User(models.Model):
-#     username = models.TextField()
-#     password = models.TextField()
-#     reported = models.IntegerField(default=0)
-#     active = models.BooleanField(default=True)
 
 class Post(models.Model):
     # when a user is deleted, what I want to do with their posts
