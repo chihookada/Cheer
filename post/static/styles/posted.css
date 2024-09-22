@@ -1,0 +1,21 @@
+.thankyou{
+    font-size: 30px;
+}
+
+.more{
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.go-post-button{
+    font-size: 20px;
+    color: black;
+    background-color: #C07086;
+    border-radius: 10px;
+    padding: 10px;
+    text-decoration: none; /* Add this line to remove the underline */
+}
+
+.go-post-button:hover{
+    background-color: #bf5773;
+}

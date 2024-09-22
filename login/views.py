@@ -1,19 +1,22 @@
 from django.shortcuts import redirect, render
 from django.contrib import messages
-from django.contrib.auth.models import User
-from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate, login, logout
+from .models import User
+from .forms import  MyUserCreationForm
+
 
 
 # Create your views here.
 def register_page(request):
-    form = UserCreationForm()
+    form = MyUserCreationForm()
     if request.user.is_authenticated:
         return redirect('home')
     
     if request.method == "POST":
-        form = UserCreationForm(request.POST)
+        form = MyUserCreationForm(request.POST)
+        print("form ==== ", form)
         if form.is_valid():
+            print("form ==== ", form)
             user = form.save(commit=False)
             user.username = user.username.lower()
             user.save()

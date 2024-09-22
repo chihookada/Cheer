@@ -1,9 +1,44 @@
 {% extends 'main.html' %}
+{% load static %}
+
+{% block head %}
+    {{ block.super}}
+    <link rel="stylesheet" type="text/css" media="screen" href="{% static 'styles/history.css' %}"/>
+{% endblock %} 
 
 {% block content %}
-<div class="history-content">
-    <h1>かこのひとこと</h1>
-</div>
-    
+<div class="history-container">
+    {% include 'navbar.html' %}
 
+    <div class="history-content">
+        <div class="title-container">
+            <h1>かこのひとこと</h1>
+        </div>
+
+        <div class="message-container">
+            {% if past_posts %}
+                {% for each in past_posts %}
+                <div class="message-wrapper">
+                    <div>
+                        <div class="content-box">
+                            <h2 class="quote-begin">"</h2>
+
+                            <p class="content">{{each.content}}</p>
+
+                            <h2 class="quote-end">"</h2>
+                        </div>
+
+                        {% if each.reference %}
+                        <p class="reference">{{each.reference}}</p>
+                        {% endif %}
+                    </div>
+                    <hr>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p class="no-data">データなし</p>
+            {% endif%}
+        </div>
+    </div>
+</div>
 {% endblock %}

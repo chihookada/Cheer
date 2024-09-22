@@ -36,17 +36,18 @@
     {% include 'title.html' %}
     <form method="POST" action="">
         {% csrf_token%}
+        
         <label>ユーザーネーム（他のユーザーに表示されることはありません）</label>
         <input type="text" name="username" placeholder="ユーザーネームを入力"/>
 
         <label>パスワード（最低8文字）</label>
-        <input type="password" name="password" placeholder="パスワードを入力"/>
+        <input type="password" name="password1" placeholder="パスワードを入力"/>
 
         <label>再入力</label>
-        <input type="password" name="re-password" placeholder="パスワードを入力"/>
+        <input type="password" name="password2" placeholder="パスワードを入力"/>
 
         <input type="submit" value="作成"/>
-        
+
         {% if messages %}
         <ul class="messages">
             {% for message in messages %}

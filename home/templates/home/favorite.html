@@ -1,9 +1,44 @@
 {% extends 'main.html' %}
+{% load static %}
+
+{% block head %}
+    {{ block.super}}
+    <link rel="stylesheet" type="text/css" media="screen" href="{% static 'styles/favorite.css' %}"/>
+{% endblock %} 
 
 {% block content %}
-<div class="home-content">
-    <h1>すきなひとこと</h1>
-</div>
-    
+<div class="favorite-container">
+    {% include 'navbar.html' %}
 
+    <div class="favorite-content">
+        <div class="title-container">
+            <h1>すきなひとこと</h1>
+        </div>
+
+        <div class="message-container">
+            {% if favorite_posts %}
+                {% for each in favorite_posts %}
+                <div class="message-wrapper">
+                    <div>
+                        <div class="content-box">
+                            <h2 class="quote-begin">"</h2>
+                            
+                            <p class="content">{{each.content}}</p>
+
+                            <h2 class="quote-end">"</h2>
+                        </div>
+
+                        {% if each.reference %}
+                        <p class="reference">{{each.reference}}</p>
+                        {% endif %}
+                    </div>
+                    <hr>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p class="no-data">データなし</p>
+            {% endif%}
+        </div>
+    </div>
+</div>
 {% endblock %}

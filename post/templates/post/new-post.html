@@ -16,18 +16,48 @@
       <h3>あなたの言葉も誰かの励みに。</h3>
       <h4>お気に入りの言葉や、誰かと応援する言葉を投稿しよう。</h4>
 
+    </div>
+
       <div class="form-container">
-        <form method="POST" action="">
-          {% csrf_token %} {{form.as_p}}
+        <form class="new-post-form" method="POST" action="">
+          {% csrf_token %}
+          <!-- {{ form.as_p }} -->
+          
+          {% if form.errors %}
+            <div class="errorlist-content">
+                {% for field, errors in form.errors.items %}
+                  {% if field == 'content' %}
+                      {% for error in errors %}
+                          <p class="content-error">{{ error }}</p>
+                      {% endfor %}
+                  {% endif %}
+                {% endfor %}
+            </div>
+          {% endif %}
 
-          <label for="posting_ref"
-            >偉人たちの言葉は、私たちの心に響きます。でも、誰の言葉か分からないと、ちょっともったいないですよね。</label
-          >
+          <textarea type="text" class="content-input" name="content" placeholder="最大100文字"></textarea>
+          <div class="reference-text">
+            <label form="posting_ref">偉人たちの言葉は、私たちの心に響きます。</label>
+            <label form="posting_ref">でも、誰の言葉か分からないと、ちょっともったいないですよね。</label>
+          </div>
+          
+          {% if form.errors %}
+            <div class="errorlist-reference">
+                {% for field, errors in form.errors.items %}
+                  {% if field == 'reference' %}
+                      {% for error in errors %}
+                          <p class="reference-error">{{ error }}</p>
+                      {% endfor %}
+                  {% endif %}
+                {% endfor %}
+            </div>
+          {% endif %}
+          <input type="text" class="reference-input" name="reference" placeholder="出典・引用元があれば入力"/>
 
-          <input type="submit" value="送信" />
+          <input class="submit-button" type="submit" value="送信" />
+          
         </form>
       </div>
-    </div>
   </div>
 </div>
 {% endblock %}

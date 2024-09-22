@@ -31,8 +31,17 @@
     visibility: hidden;
 }
 
+.hello-user{
+    margin-top: 100px;
+    text-align: center;
+}
+.hello-user p{
+    font-size: 20px;
+    color: white
+}
+
 .sidenav-content{
-    margin-top: 70px;
+    margin-top: 10px;
 }
 
 .sidenav a{

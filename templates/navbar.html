@@ -4,7 +4,6 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>Title</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" type="text/css" media='screen' href="{% static 'styles/navbar.css' %}">
     </head>
@@ -16,10 +15,14 @@
         <div class='sidenav' id="sidenav">
             <button onclick="toggleNav()">☰</button>
 
+            <div class="hello-user">
+                <p>こんにちは、{{ request.user.username }}さん</p>
+            </div>
+
             <div class="sidenav-content">
                 <a href="/">ホーム</a>
                 <!-- <a href="/history">投稿</a> -->
-                <a href="/history">履歴</a>
+                <a href="/history">投稿履歴</a>
                 <a href="/favorite">お気に入り</a>
                 <a href="/settings">設定</a>
 

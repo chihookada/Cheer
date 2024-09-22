@@ -1,13 +1,12 @@
 from django.forms import ModelForm
-from .models import Post
-# from .models import Post, User_fav
+from .models import Post, History
 
 class PostForm(ModelForm):
     class Meta:
         model = Post
         fields = ['content', 'reference']
 
-# class FavoriteForm(ModelForm):
-#     class Meta:
-#         model = User_fav
-#         fields = '__all__'
+class HistoryForm(ModelForm):
+    class Meta:
+        model = History
+        fields = ['user_id', 'post_id']

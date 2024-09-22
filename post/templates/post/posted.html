@@ -1,0 +1,23 @@
+{% extends 'main.html' %}
+{% load static %}
+
+{% block head %}
+    {{ block.super}}
+    <link rel="stylesheet" type="text/css" media="screen" href="{% static 'styles/posted.css' %}"/>
+{% endblock %} 
+
+{% block content %}
+<div class="posted-content">
+    {% include 'navbar.html' %}
+    {% include 'title.html' %}
+
+    <div class="thanks-container">
+        <h3 class="thankyou">投稿されました。ありがとうございました。</h3>
+    </div>
+
+    <div class="go-post">
+        <p class="more">もっと投稿しますか？</p>
+        <a href="{% url 'new-post' %}" class="go-post-button">投稿する</a>
+    </div>
+</div>
+{% endblock %}

@@ -6,12 +6,15 @@
     {% include 'title.html' %}
 
     <div class="thanks-container">
-        <h3>投稿されました。ありがとうございました。</h3>
+        <h3>すべてのメッセージを受けとり終わったようです。</h3>
     </div>
 
     <div class="go-post">
         <p>もっと投稿しますか？</p>
         <a href="{% url 'new-post' %}" class="go-post-button">投稿する</a>
+
+        <p>履歴をリセットして、もう一度はじめから受けとりますか？（お気に入りはリセットされません）</p>
+        <a href="{% url 'reset-history' %}" class="go-post-button">はじめから</a>
     </div>
 </div>
 {% endblock %}
