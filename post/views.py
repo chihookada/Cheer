@@ -3,12 +3,24 @@ from django.urls import reverse
 from django.shortcuts import render, redirect
 from django.http import JsonResponse, HttpResponse
 from django.contrib.auth.decorators import login_required
-from .models import Post, History 
-from .forms import PostForm, HistoryForm
-
+from .models import Post, History, Evaluation
+from .forms import PostForm, HistoryForm, EvaluationForm
 import random
+from decimal import Decimal
+import threading
+
+# Imports the Google Cloud client library
+from google.cloud import language_v2
+import vertexai
+from vertexai.generative_models import GenerativeModel
 
 msg_id = -1
+def get_todays_msg_id(user_id):
+    global msg_id
+    if msg_id == -1:
+        return History.objects.filter(user_id=user_id, created_at__date=date.today()).first().post_id.pk
+    else:
+        return msg_id
 
 @login_required(login_url='login')
 def go_todays_msg(request):
@@ -37,8 +49,10 @@ def go_todays_msg(request):
 
         else:
             single_msg = random.choice(unseen_msges) #choose 1 randomly
+            single_msg.views += 1
+            single_msg.save()
             global msg_id
-            msg_id = single_msg
+            msg_id = single_msg.pk
             
             # store the info to history
             form = HistoryForm({'user_id': request.user.id, 'post_id': msg_id})
@@ -71,13 +85,16 @@ def completed(request):
 def create_new_post(request):
     form = PostForm()
     if request.method == "POST":
-        print(request.user.id)
         form = PostForm(request.POST)
-        print(form)
         if form.is_valid():
             form.instance.user_id = request.user
             form.save()
-            
+            thread = threading.Thread(target=fetch_analysis, args=(
+                form.cleaned_data['content'], 
+                form.cleaned_data['reference'], 
+                form.instance.id
+            ))
+            thread.start()
             return redirect('posted')
         
         else: 
@@ -88,14 +105,25 @@ def create_new_post(request):
     context = {"form": form}
     return render(request, "post/new-post.html", context)
 
+#TODO at midnight, collect upvote and notify the poster
+
+#TODO if num of report is more than 50% and total view is more than 10, deactivate
+
+#TODO report button functionality
 @login_required(login_url='login')
-def upvote(request):
+def upvote(request): #TODO click good -> hoverover disable
+    msg_id = get_todays_msg_id(request.user.id)
     if request.method == "POST":
         if msg_id != -1:
             post = Post.objects.get(id=msg_id)
             post.likes += 1
             post.save()
+            hist = History.objects.filter(user_id=request.user.id, created_at__date=date.today()).first()
+            hist.is_liked = True
+            hist.save()
             return JsonResponse({}, status=200)  # Successful upvote with empty response
+        print("msg_id initial state")
+        return JsonResponse({}, status=400)
     else:
         return JsonResponse({}, status=400)  # Bad request with empty response
     
@@ -123,3 +151,95 @@ def posted(request):
 
 def reset_history(request):
     return redirect('home')
+
+def fetch_analysis(content, reference=None, post_id=None):
+
+    vertexai.init(project="direct-volt-434413-b1", location="asia-northeast1")
+    model = GenerativeModel("gemini-1.5-flash-002")
+    client = language_v2.LanguageServiceClient()
+
+    def analyze_text(text, is_content):
+        document = language_v2.types.Document(
+            content=text, type_=language_v2.Document.Type.PLAIN_TEXT,
+        )
+
+        # Detects the sentiment of the text
+        sentiment = client.analyze_sentiment(request={"document": document})
+
+        moderate = client.moderate_text(request={"document": document})
+
+        if is_content:
+            gemini = model.generate_content("is "+text+ "a positive and encouraging message? yes or no")
+        else:
+            gemini = model.generate_content("is "+text+ "a person or something that can be used as a reference? yes or no")
+
+        store_result(sentiment, moderate, gemini, is_content, post_id)
+    # Analyze both content and reference
+    analyze_text(content, True)
+    if reference == None or reference != "":  # Only analyze reference if it's not empty
+        analyze_text(reference, False)
+
+    
+def store_result(sentiment, moderate, gemini, is_content, post_id):
+    data = {
+        "post_id": post_id,
+        "is_content": is_content,
+        "sentiment": round(Decimal(sentiment.document_sentiment.score), 9),
+        "prompt": gemini.text
+    }
+
+    categories = {
+        'Toxic': 'toxic',
+        'Insult': 'derogatory',
+        'Profanity': 'violent',
+        'Derogatory': 'sexual',
+        'Sexual': 'insult',
+        'Death, Harm & Tragedy': 'profanity',
+        'Violent': 'death_harm',
+        'Firearms & Weapons': 'firearms',
+        'Public Safety': 'public_safety',
+        'Health': 'religion',
+        'Religion & Belief': 'illicit_drugs',
+        'Illicit Drugs': 'war_conflict',
+        'War & Conflict': 'finance',
+        'Politics': 'politics',
+        'Finance': 'finance',
+        'Legal': 'legal',
+    }
+
+    for each in moderate.moderation_categories:
+        field_name = categories.get(each.name, None)
+        if field_name:
+            data[field_name] = round(Decimal(each.confidence), 9)
+
+    evaluation = EvaluationForm(data)
+    post = Post.objects.get(id=post_id)
+    if evaluation.is_valid():
+        evaluation.save()
+
+        if judge(evaluation.instance.id) == False and is_content:
+            post.active = False
+        elif judge(evaluation.instance.id) == False and not is_content:
+            post.referenceActive = False # TODO don't show reference when this is false
+    
+    else:
+        print("evaluation not valid")
+        if is_content:
+            post.contentChecked = False
+        else:
+            post.referenceChecked = False
+        post.active = False
+
+    post.save()
+
+def judge(evaluation_id):
+    evaluation = Evaluation.objects.get(id=evaluation_id)
+
+    criteria = { # two or more Falses below is inappropriate
+        "sentiment": evaluation.sentiment >= 0.0,  # True if sentiment is positive
+        "moderate": sum(getattr(evaluation, category) > 0.1 for category in ["toxic", "derogatory", "violent", "sexual", "insult", "profanity", "death_harm", "firearms", "public_safety", "illicit_drugs", "war_conflict"]) <= 2,  # True if no more than 2 moderate categories exceed the threshold
+        "prompt": not (evaluation.prompt.startswith("No") or evaluation.prompt.startswith("No."))  # True if prompt doesn't start with "No" or "No."
+    }
+
+    false_count = sum(not value for value in criteria.values())
+    return false_count < 2

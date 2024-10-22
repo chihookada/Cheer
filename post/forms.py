@@ -1,5 +1,5 @@
 from django.forms import ModelForm
-from .models import Post, History
+from .models import Post, History, Evaluation
 
 class PostForm(ModelForm):
     class Meta:
@@ -10,3 +10,8 @@ class HistoryForm(ModelForm):
     class Meta:
         model = History
         fields = ['user_id', 'post_id']
+
+class EvaluationForm(ModelForm):
+    class Meta:
+        model = Evaluation
+        fields = '__all__'

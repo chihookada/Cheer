@@ -1,108 +1,130 @@
-{% extends 'main.html' %} 
-{% load static %}
-
-{% block head %}
-    {{ block.super}}
-    <link rel="stylesheet" type="text/css" media="screen" href="{% static 'styles/todays-msg.css' %}"/>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-{% endblock %} 
-
-{% block content %}
+{% extends 'main.html' %} {% load static %} {% block head %} {{ block.super}}
+<link
+  rel="stylesheet"
+  type="text/css"
+  media="screen"
+  href="{% static 'styles/todays-msg.css' %}"
+/>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+{% endblock %} {% block content %}
 <div class="todays-msg-content">
-    {% include 'navbar.html' %} 
+  {% include 'navbar.html' %}
 
-    <div class="title-container">
-        {% include 'title.html' %}
+  <div class="title-container">{% include 'title.html' %}</div>
+
+  <div class="message-container">
+    <div class="message-wrapper">
+      <div class="content-box">
+        <!-- TODO message align center -->
+        <h2 class="quote-begin">"</h2>
+
+        <p class="content">{{single_msg.content}}</p>
+
+        <h2 class="quote-end">"</h2>
+      </div>
+      {% if single_msg.reference %}
+      <p class="reference">{{single_msg.reference}}</p>
+      {% endif %}
     </div>
+  </div>
 
-    <div class="message-container">
-        <div class="message-wrapper">
-            <div class="content-box">
-                <h2 class="quote-begin">"</h2>
-
-                <p class="content">{{single_msg.content}}</p>
-
-                <h2 class="quote-end">"</h2>
-            </div>
-            {% if single_msg.reference %}
-            <p class="reference">{{single_msg.reference}}</p>
-            {% endif %}
+  <div class="buttons-footer">
+    <div class="good-container">
+      <button id="good-btn" onclick="upvotePost()">
+        Good
+        <div class="good-box">
+          <p>いいね</p>
         </div>
+      </button>
+    </div>
+    <div class="fav-container">
+      <button
+        {% if favorite %}
+            class="on"
+        {% else %}
+            class="off"
+        {% endif %}
+        id="fav-btn"
+        onclick="favPost()"> Fav 
+            <div class="fav-box">
+                <p>お気に入り</p>
+            </div>
+        </button>
+      
     </div>
 
-    <div class="buttons-footer">
-        <button id="good-btn" onclick="upvotePost()">Good</button>
-        <button
-            {% if favorite %}
-                class='on' 
-            {% else %}
-                class='off'
-            {% endif %} 
-            id="fav-btn" onclick="favPost()">Fav</button>
+    <div class="report-container">
+      <button id="report-btn">Report
 
-        <button id="report-btn">Report</button>
-
-        <!-- <button id="report-btn" onclick="reportPost">Report</button> -->
-
-        <script>
-        function upvotePost() {
-            $.ajax({
-            url: `/post/upvote/`, // URL pattern to call the view
-            type: "POST",
-            data: {
-                csrfmiddlewaretoken: "{{ csrf_token }}", // CSRF token for security
-            },
-            success: function (response) {
-                var goodBtn = $("#good-btn");
-                goodBtn.prop("disabled", true);
-                goodBtn.addClass("disabled");
-            },
-            error: function (response) {
-                console.log("Upvote unsuccessful: Error->", response);
-                //show an error
-            },
-            });
-        }
-        function favPost() {
-            $.ajax({
-                url: `/post/favorite/`,  // URL pattern to call the view
-                type: 'POST',
-                data: {
-                    user_id: '{{ request.user.id }}',
-                    post_id: '{{ single_msg.id}}',
-                    csrfmiddlewaretoken: '{{ csrf_token }}'  // CSRF token for security
-                },
-                success: function(response) {
-                    var favBtn = $('#fav-btn');
-                    favBtn.toggleClass("on").toggleClass("off"); 
-                },
-                error: function(response) {
-                    console.log('Fav unsuccessful: Error->', response);
-                }
-            });
-        }
-        // function reportPost(postId) {
-        //     $.ajax({
-        //         url: `/upvote/`,  // URL pattern to call the view
-        //         type: 'POST',
-        //         data: {
-        //             csrfmiddlewaretoken: '{{ csrf_token }}'  // CSRF token for security
-        //         },
-        //         success: function(response) {
-        //             // Update the vote count on the page
-        //             document.getElementById('vote-count').innerText = 'Votes: ' + response.votes;
-        //         },
-        //         error: function(response) {
-        //             console.log('Error:', response);
-        //         }
-        //     });
-        // }
-        </script>
+        <div class="report-box">
+            <p>通報</p>
+          </div>
+      </button>
+      
     </div>
 
-    <div class="go-post">
-        <p class="your-turn">今度はあなたの番です。</p>
-        <a href="{% url 'new-post' %}" class="go-post-button">投稿する</a>
-    </div>
+    <!-- <button id="report-btn" onclick="reportPost">Report</button> -->
+
+    <script>
+      function upvotePost() {
+        $.ajax({
+          url: `/post/upvote/`, // URL pattern to call the view
+          type: "POST",
+          data: {
+            user_id: "{{ request.user.id }}",
+            post_id: "{{ single_msg.id}}",
+            csrfmiddlewaretoken: "{{ csrf_token }}", // CSRF token for security
+          },
+          success: function (response) {
+            var goodBtn = $("#good-btn");
+            goodBtn.prop("disabled", true);
+            goodBtn.addClass("disabled");
+          },
+          error: function (response) {
+            console.log("Upvote unsuccessful: Error->", response);
+            //show an error
+          },
+        });
+      }
+      function favPost() {
+        var favBtn = $("#fav-btn");
+        favBtn.toggleClass("on").toggleClass("off");
+
+        $.ajax({
+          url: `/post/favorite/`, // URL pattern to call the view
+          type: "POST",
+          data: {
+            user_id: "{{ request.user.id }}",
+            post_id: "{{ single_msg.id}}",
+            csrfmiddlewaretoken: "{{ csrf_token }}", // CSRF token for security
+          },
+          error: function (response) {
+            console.log("Fav unsuccessful: Error->", response);
+          },
+        });
+      }
+      // function reportPost(postId) {
+      //     $.ajax({
+      //         url: `/upvote/`,  // URL pattern to call the view
+      //         type: 'POST',
+      //         data: {
+      //             csrfmiddlewaretoken: '{{ csrf_token }}'  // CSRF token for security
+      //         },
+      //         success: function(response) {
+      //             // Update the vote count on the page
+      //             document.getElementById('vote-count').innerText = 'Votes: ' + response.votes;
+      //         },
+      //         error: function(response) {
+      //             console.log('Error:', response);
+      //         }
+      //     });
+      // }
+    </script>
+  </div>
+
+  <div class="go-post">
+    <p class="your-turn">今度はあなたの番です。</p>
+    <a href="{% url 'new-post' %}" class="go-post-button">投稿する</a>
+  </div>
 </div>
 {% endblock %}
