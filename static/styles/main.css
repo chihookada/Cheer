@@ -17,3 +17,7 @@ body::before {
   background-image: linear-gradient(to top, white 0%, transparent 90%), linear-gradient(to right, #802000, #EE82EE);
   z-index: -1; /* Ensure it stays behind other content */
 }
+
+.home-content{
+  width: 100%;
+}

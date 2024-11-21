@@ -1,130 +1,156 @@
-{% extends 'main.html' %} {% load static %} {% block head %} {{ block.super}}
-<link
-  rel="stylesheet"
-  type="text/css"
-  media="screen"
-  href="{% static 'styles/todays-msg.css' %}"
-/>
+{% extends 'main.html' %} 
+{% load static %} 
+{% block head %} 
+{{ block.super}}
+<link rel="stylesheet" type="text/css" media="screen" href="{% static 'styles/todays-msg.css' %}"/>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-{% endblock %} {% block content %}
+{% endblock %} 
+
+{% block content %}
 <div class="todays-msg-content">
   {% include 'navbar.html' %}
 
   <div class="title-container">{% include 'title.html' %}</div>
-
-  <div class="message-container">
-    <div class="message-wrapper">
-      <div class="content-box">
-        <!-- TODO message align center -->
-        <h2 class="quote-begin">"</h2>
-
-        <p class="content">{{single_msg.content}}</p>
-
-        <h2 class="quote-end">"</h2>
-      </div>
-      {% if single_msg.reference %}
-      <p class="reference">{{single_msg.reference}}</p>
-      {% endif %}
+  <div class="message-container-outer">
+    <div class="message-container">
+        <div class="content-box">
+          <div class="content">
+            <div class="quote-begin-container">
+              <img class="quote-begin" src="{% static 'image/quote-begin.png' %}" alt="image">  
+            </div>
+            {{single_msg.content}}
+            <div class="quote-end-container">
+              <img class="quote-end" src="{% static 'image/quote-end.png' %}" alt="image">
+            </div>
+          </div>
+        </div>
+        {% if single_msg.reference %}
+        <div class="reference-box">
+          <p class="reference">{{single_msg.reference}}</p>
+        </div>
+        {% endif %}
     </div>
-  </div>
 
-  <div class="buttons-footer">
-    <div class="good-container">
-      <button id="good-btn" onclick="upvotePost()">
-        Good
+    <div class="buttons-footer">
+      <div class="good-container">
+        <img 
+          id="good-btn" 
+          {% if like %}
+            class="disabled"
+          {% endif %}
+          onclick="upvotePost()" src="{% static 'image/good-circle.png' %}" alt="image"> 
         <div class="good-box">
           <p>いいね</p>
         </div>
-      </button>
-    </div>
-    <div class="fav-container">
-      <button
-        {% if favorite %}
+      </div>
+      <div class="fav-container">
+        <img 
+          {% if favorite %}
             class="on"
-        {% else %}
+          {% else %}
             class="off"
-        {% endif %}
-        id="fav-btn"
-        onclick="favPost()"> Fav 
-            <div class="fav-box">
-                <p>お気に入り</p>
-            </div>
-        </button>
-      
-    </div>
+          {% endif %}
+          id="fav-btn"
+          onclick="favPost()" src="{% static 'image/star.png' %}" alt="image"> 
+        <div class="fav-box">
+          <p>お気に入り</p>
+        </div>
+      </div>
 
-    <div class="report-container">
-      <button id="report-btn">Report
+      <div class="report-container">
+        <img id="report-btn" class="report-btn" onclick="toggleReport(event)" src="{% static 'image/report.png' %}" alt="image"> 
+        
+        <div class="is-reporting" id="is-reporting">
+          <p>不適切な内容：<br>この投稿を通報しますか？</p>
+          <div class="option-buttons">
+              <button class="report-no" onclick="toggleReport(event)">いいえ</button>
+              <button class="report-yes" onclick="reportPost()">はい</button>
+          </div>
+        </div>
 
         <div class="report-box">
-            <p>通報</p>
-          </div>
-      </button>
-      
+          <p>通報</p>
+        </div>
+      </div>
+
+      <!-- <button id="report-btn" onclick="reportPost">Report</button> -->
+
+      <script>
+        function upvotePost() {
+          var goodBtn = $("#good-btn");
+          if (goodBtn.prop("disabled") || goodBtn.hasClass("disabled")) {
+            return;
+          }
+          $.ajax({
+            url: `/post/upvote/`, // URL pattern to call the view
+            type: "POST",
+            data: {
+              user_id: "{{ request.user.id }}",
+              post_id: "{{ single_msg.id}}",
+              csrfmiddlewaretoken: "{{ csrf_token }}", // CSRF token for security
+            },
+            success: function (response) {
+              goodBtn.prop("disabled", true);
+              goodBtn.addClass("disabled");
+            },
+            error: function (response) {
+              console.log("Upvote unsuccessful: Error->", response);
+              alert("Something went wrong");
+            },
+          });
+        }
+        function favPost() {
+          var favBtn = $("#fav-btn");
+          favBtn.toggleClass("on").toggleClass("off");
+
+          $.ajax({
+            url: `/post/favorite/`, // URL pattern to call the view
+            type: "POST",
+            data: {
+              user_id: "{{ request.user.id }}",
+              post_id: "{{ single_msg.id}}",
+              csrfmiddlewaretoken: "{{ csrf_token }}", // CSRF token for security
+            },
+            error: function (response) {
+              console.log("Fav unsuccessful: Error->", response);
+              alert("Something went wrong");
+            },
+          });
+        }
+        function reportPost() {
+            $.ajax({
+                url: `/post/report/`,  // URL pattern to call the view
+                type: 'POST',
+                data: {
+                  user_id: "{{ request.user.id }}",
+                  post_id: "{{ single_msg.id}}",
+                  csrfmiddlewaretoken: "{{ csrf_token }}", // CSRF token for security
+                },
+                success: function(data) {
+                  window.location.href = data.url;
+                },
+                error: function(response) {
+                  console.error("Report unsuccessful: Error->", response);
+                  alert("Something went wrong");
+        },
+            });
+        }
+        function toggleReport(event) {
+          const window = document.getElementById(`is-reporting`);
+          const clickedElement = event.target;
+          if (clickedElement.classList.contains("report-no")) {
+              window.style.visibility = "hidden";
+          } else if (clickedElement.classList.contains("report-btn")){
+              window.style.visibility = "visible"; 
+          }
+        }
+      </script>
     </div>
 
-    <!-- <button id="report-btn" onclick="reportPost">Report</button> -->
-
-    <script>
-      function upvotePost() {
-        $.ajax({
-          url: `/post/upvote/`, // URL pattern to call the view
-          type: "POST",
-          data: {
-            user_id: "{{ request.user.id }}",
-            post_id: "{{ single_msg.id}}",
-            csrfmiddlewaretoken: "{{ csrf_token }}", // CSRF token for security
-          },
-          success: function (response) {
-            var goodBtn = $("#good-btn");
-            goodBtn.prop("disabled", true);
-            goodBtn.addClass("disabled");
-          },
-          error: function (response) {
-            console.log("Upvote unsuccessful: Error->", response);
-            //show an error
-          },
-        });
-      }
-      function favPost() {
-        var favBtn = $("#fav-btn");
-        favBtn.toggleClass("on").toggleClass("off");
-
-        $.ajax({
-          url: `/post/favorite/`, // URL pattern to call the view
-          type: "POST",
-          data: {
-            user_id: "{{ request.user.id }}",
-            post_id: "{{ single_msg.id}}",
-            csrfmiddlewaretoken: "{{ csrf_token }}", // CSRF token for security
-          },
-          error: function (response) {
-            console.log("Fav unsuccessful: Error->", response);
-          },
-        });
-      }
-      // function reportPost(postId) {
-      //     $.ajax({
-      //         url: `/upvote/`,  // URL pattern to call the view
-      //         type: 'POST',
-      //         data: {
-      //             csrfmiddlewaretoken: '{{ csrf_token }}'  // CSRF token for security
-      //         },
-      //         success: function(response) {
-      //             // Update the vote count on the page
-      //             document.getElementById('vote-count').innerText = 'Votes: ' + response.votes;
-      //         },
-      //         error: function(response) {
-      //             console.log('Error:', response);
-      //         }
-      //     });
-      // }
-    </script>
-  </div>
-
-  <div class="go-post">
-    <p class="your-turn">今度はあなたの番です。</p>
-    <a href="{% url 'new-post' %}" class="go-post-button">投稿する</a>
+    <div class="go-post">
+      <p class="your-turn">今度はあなたの番です。</p>
+      <a href="{% url 'new-post' %}" class="go-post-button">投稿する</a>
+    </div>
   </div>
 </div>
 {% endblock %}

@@ -14,6 +14,7 @@
         <a href="{% url 'new-post' %}" class="go-post-button">投稿する</a>
 
         <p>履歴をリセットして、もう一度はじめから受けとりますか？（お気に入りはリセットされません）</p>
+        <!-- TODO when reset, clear history with is_reported = False -->
         <a href="{% url 'reset-history' %}" class="go-post-button">はじめから</a>
     </div>
 </div>

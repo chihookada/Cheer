@@ -3,8 +3,9 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    overscroll-behavior: contain; /* Apply here */
+    overscroll-behavior: contain;
     height: 100vh;
+    margin-bottom: 30px;
 }
 
 .title-container{
@@ -20,54 +21,53 @@ h1{
 }
 
 .message-container{
-    width: auto;
-    margin-bottom: 5vh;
     display: flex;
-    flex-direction: column;
     align-items: center;
+    flex-direction: column;
+    width: 70vw;
+    height: 80vh;
     overflow-y: auto;
     scrollbar-width: none;  /* Firefox */
-
-};
+}
 
 .message-container::-webkit-scrollbar { 
     display: none;  /* Chrome, Safari and Opera */
 }
 
 .message-wrapper{
-    margin: 20px 0px;
-    width: 50vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    margin: 10px 0px;
+    max-width: 100%;
 }
 
 .content-box{
-    display: inline-block;
-    width: fit-content;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     padding: 0px 10px;
-    overflow: visible; 
+    margin: 55px 0;
+    overflow: visible;
 }
 
-h2{
-    margin: 0;
-    font-size: 50px;
-    height: 40px;
-    width: 30px;
+.content-box img{
+    width: 55px;
+    padding: 0px 15px;
 }
 
-.quote-begin{
+.quote-begin-container{    
+    height: 100%;
+    margin-top: -100px;
+}
+
+.quote-end-container{    
     display: flex;
-    flex-direction: row;
-    align-items: start;
-    justify-content: start;
-    width: 100%;
-    margin-left: -30px;
-}
-
-.quote-end{
-    display: flex;
-    flex-direction: row;
+    flex-direction: column;
     justify-content: end;
-    width: 100%;
-    margin-left: 30px;
+    height: 100%;
+    margin-bottom: -100px;
 }
 
 .content{
@@ -76,19 +76,85 @@ h2{
     margin: 0;
 }
 
-.reference{
-    font-weight: bold;
+.reference-box{
+    width: 100%;
     display: flex;
-    justify-content: flex-end;
+    justify-content: end;
+    margin: 10px 0px;
+}
+
+.reference{
     margin: 0;
-    margin-top: -20px;
-    font-size: 25px;
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.delete-container-outer{
+    display: flex;
+    justify-content: end;
+    align-items: start;
+    width: 100%;
+}
+
+.delete-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    margin-top: 10px;
+    position: relative;
+}
+
+.delete-container img{
+    width: 45px;
+    padding: 0 10px;
+}
+
+.delete-button{
+    background-color: transparent;
+    /* height: 50%; */
+}
+
+.delete-button:hover {
+    cursor: pointer;
+}
+
+.is-deleting{
+    visibility: hidden;
+    background-color: lightgrey;
+    border-radius: 10px;
+    text-align: start;
+    padding: 10px;
+    width: 170px;
+    position: absolute;
+    top: -30px;
+    right: 0;
+}
+
+.is-deleting p{
+    margin: 5px;
+}
+
+.option-buttons button{
+    margin: 10px;
+    border: none;
+    background-color: transparent;
+}
+
+.option-buttons button:hover{
+    cursor: pointer;
+    background-color: grey;
+    border-radius: 5px;
+}
+
+.option-buttons{
+    text-align: center;
 }
 
 hr{
     border-top: 2px solid black;
     width: 20vw;
-    margin-top: 30px;
+    margin-top: 15px;
 }
 
 .no-data{

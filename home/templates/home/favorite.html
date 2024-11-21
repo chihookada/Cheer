@@ -4,6 +4,7 @@
 {% block head %}
     {{ block.super}}
     <link rel="stylesheet" type="text/css" media="screen" href="{% static 'styles/favorite.css' %}"/>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 {% endblock %} 
 
 {% block content %}
@@ -18,20 +19,65 @@
         <div class="message-container">
             {% if favorite_posts %}
                 {% for each in favorite_posts %}
-                <div class="message-wrapper">
-                    <div>
-                        <div class="content-box">
-                            <h2 class="quote-begin">"</h2>
-                            
-                            <p class="content">{{each.content}}</p>
-
-                            <h2 class="quote-end">"</h2>
+                <div class="message-wrapper" id="message-wrapper-{{ each.pk }}">
+                    <div class="content-box">
+                        <div class="quote-begin-container">
+                            <img class="quote-begin" src="{% static 'image/quote-begin.png' %}" alt="image">  
                         </div>
-
-                        {% if each.reference %}
-                        <p class="reference">{{each.reference}}</p>
-                        {% endif %}
+                        <p class="content">{{each.content}}</p>
+                        <div class="quote-end-container">
+                            <img class="quote-end" src="{% static 'image/quote-end.png' %}" alt="image">
+                        </div>
                     </div>
+                    {% if each.reference %}
+                    <div class="reference-box">
+                        <p class="reference">{{each.reference}}</p>
+                    </div>
+                    {% endif %}
+                    <div class="delete-container-outer">
+                        <div class="delete-container">
+                            <img class="delete-button" id="delete-button" onclick="toggleDelete(event, '{{ each.pk }}')" src="{% static 'image/delete.png' %}" alt="image"> 
+                            <div class="is-deleting" id="is-deleting-{{ each.pk }}">
+                                <p>本当に削除しますか？この操作は取り消すことができません。</p>
+                                <div class="option-buttons">
+                                    <button class="delete-no" onclick="toggleDelete(event, '{{ each.pk }}')">いいえ</button>
+                                    <button class="delete-yes" onclick="deleteFav('{{ each.pk }}')">はい</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <script>
+                        function toggleDelete(event, post_id) {
+                            const window = document.getElementById(`is-deleting-${post_id}`);
+                            const clickedElement = event.target;
+                            if (clickedElement.classList.contains("delete-no")) {
+                                window.style.visibility = "hidden";
+                            } else if (clickedElement.classList.contains("delete-button")){
+                                window.style.visibility = "visible"; 
+                            }
+                        }
+                        function deleteFav(post_id) {
+                            console.log("here")
+                            $.ajax({
+                            url: `/delete-f/`, // URL pattern to call the view
+                            type: "POST",
+                            data: {
+                                post_id: post_id,
+                                csrfmiddlewaretoken: "{{ csrf_token }}", // CSRF token for security
+                            },
+                            success: function (response) {
+                                //close delete window
+                                document.getElementById(`is-deleting-${post_id}`).style.visibility = "hidden";
+                                //remove deleted post
+                                document.getElementById(`message-wrapper-${post_id}`).remove(); 
+                            },
+                            error: function (response) {
+                                console.log("delete unsuccessful: Error->", response);
+                            },
+                            });
+                        }
+                    </script>
                     <hr>
                 </div>
                 {% endfor %}

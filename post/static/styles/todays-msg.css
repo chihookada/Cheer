@@ -1,92 +1,121 @@
+.todays-msg-content{
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    flex-direction: column;
+    height: 100vh;
+}
+
 .title-container{
     position: sticky;
     top: 0; /* Stick to the top */
     z-index: 1;
 }
 
-.message-wrapper{
-    margin: 20px 0px;
-    width: 50vw;
+.message-container-outer{
+    overflow-y: auto;
+    scrollbar-width: none;  /* Firefox */
+}
+
+.message-container{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    width: 70vw;
+    /* height: 80vh; */
+    margin-bottom: 20px;
+    max-width: 100%;
 }
 
 .content-box{
-    display: inline-block;
-    width: fit-content;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     padding: 0px 10px;
-    overflow: visible; 
+    margin: 25px 0;
+    overflow: visible;
 }
 
-h2{
-    margin: 0;
-    font-size: 50px;
-    height: 40px;
-    width: 30px;
+.content-box img{
+    width: 60px;
 }
 
-.quote-begin{
+.quote-begin-container{
+    /* height: 100%; */
+    /* margin-left: -70px; */
     display: flex;
-    flex-direction: row;
-    align-items: start;
-    justify-content: start;
-    width: 100%;
-    margin-left: -30px;
+    /* z-index: 3; */
 }
 
-.quote-end{
+.quote-end-container{    
     display: flex;
-    flex-direction: row;
+    /* flex-direction: column; */
     justify-content: end;
-    width: 100%;
-    margin-left: 30px;
+    height: 100%;
+    /* margin-bottom: -100px; */
 }
 
 .content{
     font-weight: bold;
-    font-size: 40px;
+    font-size: 50px;
     margin: 0;
+    /* display: flex; */
+    align-items: center;
+}
+
+.reference-box{
+    width: 100%;
+    display: flex;
+    justify-content: end;
 }
 
 .reference{
-    font-weight: bold;
-    display: flex;
-    justify-content: center;
     margin: 0;
-    margin-top: -20px;
-    font-size: 25px;
+    font-size: 35px;
+    font-weight: bold;
 }
 
 .buttons-footer{
     display: flex;
     flex-direction: row;
-    justify-content: space-evenly;
+    justify-content: center;
     align-items: center;
-    width: 100%;
-
+    height: fit-content;
 }
 
-.buttons-footer button{
-    margin: 10px;
-    padding-top: 20px;
+.buttons-footer img{
+    margin: 10px 10px 0 10px;
     width: 60px; 
     height: 60px;
-    border: 1px solid black;
     border-radius: 50px;
     font-size: 15px;
 }
 
-.buttons-footer button:hover{
+.buttons-footer p{
+    margin: 0;
+}
+
+.buttons-footer img:hover{
     cursor: pointer;
 }
 
-#good-btn:hover .good-box {
+.good-container, .fav-container, .report-container{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+#good-btn:hover + .good-box {
     visibility: visible;
 }
 
-#fav-btn:hover .fav-box {
+#fav-btn:hover + .fav-box {
     visibility: visible;
 }
 
-#report-btn:hover .report-box {
+#report-btn:hover + .report-box {
     visibility: visible;
 }
 
@@ -95,7 +124,6 @@ h2{
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding-top: 60px;
 }
 
 .good-box, .fav-box, .report-box {
@@ -104,14 +132,14 @@ h2{
     background-color: rgb(210, 210, 210);
     border-radius: 5px;
     padding: 5px;
-    margin-top: 30px;
     width: max-content;
 }
 
-.buttons-footer p{
-    margin: 0;
-}
-
+#good-btn.disabled { 
+    cursor: initial;
+    background-color: #ffd6ab; /* Example grayed-out color */
+  }
+  
 
 #fav-btn.off {
     background-color: transparent;
@@ -119,13 +147,57 @@ h2{
 
 #fav-btn.on {
     color: black;
-    background-color: rgb(207, 255, 218);
+    background-color: rgb(242, 255, 169);
+}
+
+.report-btn{
+    background-color: transparent;
+    /* height: 50%; */
+}
+
+.report-btn:hover {
+    cursor: pointer;
+}
+
+/* TODO fix UI */
+.is-reporting{
+    visibility: hidden;
+    background-color: lightgrey;
+    border-radius: 10px;
+    text-align: start;
+    padding: 10px;
+    top: -30px;
+    right: 0;
+}
+
+.is-reporting p{
+    margin: 5px;
+}
+
+.option-buttons button{
+    margin: 10px;
+    border: none;
+    background-color: transparent;
+}
+
+.option-buttons button:hover{
+    cursor: pointer;
+    background-color: grey;
+    border-radius: 5px;
+}
+
+.option-buttons{
+    text-align: center;
 }
 
 .your-turn{
-    margin-top: 40px;
-    font-size: 20px;
+    margin-top: 0;
+    font-size: 25px;
     font-weight: bold;
+}
+
+.go-post{
+    margin-bottom: 20px;
 }
 
 .go-post-button{

@@ -22,11 +22,11 @@ h4{
 }
 
 #warning{    
-    border-radius: 30px;
-    border: 1px solid black;  
-    height: 50px;
+    /* border-radius: 30px; */
+    /* border: 1px solid black; */
+    /* height: 50px; */
     width: 50px;
-    text-align: center;
+    /* text-align: center; */
 }
 
 .warning-container:hover .warning-content{
@@ -36,7 +36,6 @@ h4{
 .h4-container{
     display: flex;
     flex-direction: row;
-    align-items: baseline;
     justify-content: center;
     height: 100px;
 }
