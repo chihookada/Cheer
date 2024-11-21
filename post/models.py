@@ -14,6 +14,7 @@ class Post(models.Model):
     likes = models.IntegerField(default=0)
     reports = models.IntegerField(default=0)
     views = models.IntegerField(default=0)
+    deleted = models.BooleanField(default=False)
     active = models.BooleanField(default=True) # is open for new selection
     referenceActive = models.BooleanField(default=True)
     contentChecked = models.BooleanField(default=True) 
@@ -57,6 +58,7 @@ class History(models.Model):
     is_favorite = models.BooleanField(default=False)
     favorited_at = models.DateTimeField(null=True, blank=True)
     is_liked = models.BooleanField(default=False)
+    is_reported = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['-created_at']

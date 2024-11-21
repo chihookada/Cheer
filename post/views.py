@@ -1,8 +1,10 @@
 from datetime import date
 from django.urls import reverse
 from django.shortcuts import render, redirect
-from django.http import JsonResponse, HttpResponse
+from django.http import HttpResponseBadRequest, JsonResponse, HttpResponse
 from django.contrib.auth.decorators import login_required
+
+from home.views import go_home
 from .models import Post, History, Evaluation
 from .forms import PostForm, HistoryForm, EvaluationForm
 import random
@@ -14,30 +16,26 @@ from google.cloud import language_v2
 import vertexai
 from vertexai.generative_models import GenerativeModel
 
-msg_id = -1
 def get_todays_msg_id(user_id):
-    global msg_id
-    if msg_id == -1:
-        return History.objects.filter(user_id=user_id, created_at__date=date.today()).first().post_id.pk
-    else:
-        return msg_id
+    post = History.objects.filter(user_id=user_id, is_reported=False, created_at__date=date.today()).first()
+    return post.post_id.pk if post else -1
 
 @login_required(login_url='login')
 def go_todays_msg(request):
-    msg_set = History.objects.filter(user_id=request.user.id, created_at__date=date.today())
-    # already got a message today
-    if msg_set.exists():
+    msg_set = History.objects.filter(user_id=request.user.id, created_at__date=date.today(), is_reported=False)
+    
+    if msg_set.exists(): # already got a message today
         his_object = msg_set.first()
         todays_msg = Post.objects.get(id=his_object.post_id.pk)
         its_history = History.objects.get(id=his_object.pk)
         context = {
             "single_msg": todays_msg,
-            "favorite": its_history.is_favorite,
-            "like": its_history.is_liked
+            "like": its_history.is_liked,
+            "favorite": its_history.is_favorite
         }
         return render(request, "post/todays-msg.html",  context)
     
-    # have't gotten a message today
+    # have't gotten a message today or reported one
     else:
         unseen_msges = get_unseen(request.user.id)
 
@@ -51,7 +49,6 @@ def go_todays_msg(request):
             single_msg = random.choice(unseen_msges) #choose 1 randomly
             single_msg.views += 1
             single_msg.save()
-            global msg_id
             msg_id = single_msg.pk
             
             # store the info to history
@@ -109,47 +106,63 @@ def create_new_post(request):
 
 #TODO if num of report is more than 50% and total view is more than 10, deactivate
 
-#TODO report button functionality
 @login_required(login_url='login')
-def upvote(request): #TODO click good -> hoverover disable
+def upvote(request):
     msg_id = get_todays_msg_id(request.user.id)
     if request.method == "POST":
         if msg_id != -1:
-            post = Post.objects.get(id=msg_id)
-            post.likes += 1
-            post.save()
-            hist = History.objects.filter(user_id=request.user.id, created_at__date=date.today()).first()
-            hist.is_liked = True
-            hist.save()
-            return JsonResponse({}, status=200)  # Successful upvote with empty response
+            try:
+                post = Post.objects.get(id=msg_id)
+                hist = History.objects.filter(user_id=request.user.id, post_id=msg_id, created_at__date=date.today(), is_reported=False).first()
+                
+                post.likes += 1
+                post.save()
+                hist.is_liked = True
+                hist.save()
+                return JsonResponse({}, status=200)  # Successful upvote with empty response
+            except:
+                return JsonResponse({}, status=400)
         print("msg_id initial state")
-        return JsonResponse({}, status=400)
-    else:
-        return JsonResponse({}, status=400)  # Bad request with empty response
+    return JsonResponse({}, status=400)  # Bad request with empty response
     
 @login_required(login_url='login')
 def favorite(request):
     if request.method == "POST":
-        history = History.objects.get(user_id=request.POST.get('user_id'), post_id=request.POST.get('post_id'))
-        if history:
+        try:
+            history = History.objects.get(user_id=request.POST.get('user_id'), post_id=request.POST.get('post_id'))
             history.is_favorite = not history.is_favorite
             history.save()
             return JsonResponse({}, status=200) # when history exists
-        else: return JsonResponse({}, status=400) # when history does not exist
-        # if History.objects.filter(user_id=request.POST.get('user_id'), post_id=request.POST.get('post_id')).exists() is False:
-        #     if form.is_valid():
-        #         form.save()
-        #         return JsonResponse({}, status=200) # when first time favoriting
-        #     else: return JsonResponse({}, status=400) # when the form is invalid
-        # else: return JsonResponse({}, status=200) # when it has been favorited
-    else: 
-        return JsonResponse({}, status=400) # when request.method != "POST"
+        except:
+            return JsonResponse({}, status=400)
+    return JsonResponse({}, status=400) # when request.method != "POST"
 
+@login_required(login_url='login')
+def report(request):
+    msg_id = get_todays_msg_id(request.user.id)
+    if request.method == "POST":
+        if msg_id != -1:
+            try:
+                post = Post.objects.get(id=msg_id)
+                hist = History.objects.filter(user_id=request.user.id, post_id=msg_id, created_at__date=date.today(), is_reported=False).first()
+                hist.is_reported = True
+                hist.save()
+
+                post.reports += 1
+                post.save()
+
+                return JsonResponse({'url': reverse('home'),})
+            except:
+               return HttpResponseBadRequest()
+        print("msg_id initial state")
+    return HttpResponseBadRequest()  # Bad request with empty response
+    
 @login_required(login_url='login')
 def posted(request):
     return render(request, "post/posted.html")
 
 def reset_history(request):
+    #TODO reset
     return redirect('home')
 
 def fetch_analysis(content, reference=None, post_id=None):
