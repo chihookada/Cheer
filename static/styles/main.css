@@ -1,4 +1,11 @@
+@font-face {
+  font-family: 'Kaisei Opti';
+  src: local('Kaisei Opti'),
+       url('/static/fonts/KaiseiOpti-Medium.ttf') format("truetype");
+}
+
 body{
+    font-family: "Kaisei Opti", sans-serif;
     display: flex;
     flex-direction: column; /* Align items vertically */
     justify-content: center; /* Center vertically */
