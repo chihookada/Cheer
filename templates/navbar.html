@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 {% load static %}
+{% load i18n %}
 <html>
     <head>
         <meta charset="utf-8">
@@ -16,18 +17,18 @@
             <button onclick="toggleNav()">☰</button>
 
             <div class="hello-user">
-                <p>こんにちは、{{ request.user.username }}さん</p>
+                <p>{% trans "こんにちは、" %}{{ request.user.username }}{% trans "さん" %}</p>
             </div>
 
             <div class="sidenav-content">
-                <a href="/">ホーム</a>
+                <a href="/">{% trans "ホーム" %}</a>
                 <!-- <a href="/history">投稿</a> -->
-                <a href="/history">投稿履歴</a>
-                <a href="/favorite">お気に入り</a>
-                <a href="/settings">設定</a>
+                <a href="/history">{% trans "投稿履歴" %}</a>
+                <a href="/favorite">{% trans "お気に入り" %}</a>
+                <a href="/settings">{% trans "設定" %}</a>
 
                 {% if request.user.is_authenticated %}
-                <a href="{% url 'logout' %}">ログアウト</a>
+                <a href="{% url 'logout' %}">{% trans "ログアウト" %}</a>
                 {% endif%}
             </div>
             

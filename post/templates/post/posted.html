@@ -1,5 +1,6 @@
 {% extends 'main.html' %}
 {% load static %}
+{% load i18n %}
 
 {% block head %}
     {{ block.super}}
@@ -12,12 +13,12 @@
     {% include 'title.html' %}
 
     <div class="thanks-container">
-        <h3 class="thankyou">投稿されました。ありがとうございました。</h3>
+        <h3 class="thankyou">{% trans "投稿されました。ありがとうございました。" %}</h3>
     </div>
 
     <div class="go-post">
-        <p class="more">もっと投稿しますか？</p>
-        <a href="{% url 'new-post' %}" class="go-post-button">投稿する</a>
+        <p class="more">{% trans "もっと投稿しますか？" %}</p>
+        <a href="{% url 'new-post' %}" class="go-post-button">{% trans "投稿する" %}/a>
     </div>
 </div>
 {% endblock %}

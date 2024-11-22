@@ -1,5 +1,6 @@
 {% extends 'main.html' %} 
 {% load static %}
+{% load i18n%}
 
 {% block head %}
   {{ block.super}}
@@ -13,19 +14,19 @@
 
   <div class="post-content">
     <div class="title-msg-container">
-      <h3>あなたの言葉も誰かの励みに。</h3>
+      <h3>{% trans "あなたの言葉も誰かの励みに。" %}</h3>
       <div class="h4-container">
-        <h4>お気に入りの言葉や、誰かと応援する言葉を投稿しよう。</h4>
+        <h4>{% trans "お気に入りの言葉や、誰かと応援する言葉を投稿しよう。" %}</h4>
         
         <div class="warning-container">
           <img id="warning" src="{% static 'image/info.png' %}" alt="image">  
 
           <div class="warning-content">
-            <p>ここは匿名で他人を応援する場です。</p>
+            <p>{% trans "ここは匿名で他人を応援する場です。" %}</p>
             <br>
-            <p>中傷誹謗、差別的な内容、見た人を不快にする内容、住所・電話番号等個人を特定できる内容等、本来の趣旨にそぐわない投稿は固く禁じます。</p>
+            <p>{% trans "中傷誹謗、差別的な内容、見た人を不快にする内容、住所・電話番号等個人を特定できる内容等、本来の趣旨にそぐわない投稿は固く禁じます。" %}</p>
             <br>
-            <p>発覚した場合は以降、一切の投稿を禁じます。</p>
+            <p>{% trans "発覚した場合は以降、一切の投稿を禁じます。" %}</p>
           </div>
         </div>
       </div>
@@ -50,10 +51,10 @@
             </div>
           {% endif %}
 
-          <textarea type="text" class="content-input" name="content" placeholder="最大100文字"></textarea>
+          <textarea type="text" class="content-input" name="content" placeholder="{% trans '最大100文字' %}"></textarea>
           <div class="reference-text">
-            <label form="posting_ref">偉人たちの言葉は、私たちの心に響きます。</label>
-            <label form="posting_ref">でも、誰の言葉か分からないと、ちょっともったいないですよね。</label>
+            <label form="posting_ref">{% trans "偉人たちの言葉は、私たちの心に響きます。" %}</label>
+            <label form="posting_ref">{% trans "でも、誰の言葉か分からないと、ちょっともったいないですよね。" %}</label>
           </div>
           
           {% if form.errors %}
@@ -67,9 +68,9 @@
                 {% endfor %}
             </div>
           {% endif %}
-          <input type="text" class="reference-input" name="reference" placeholder="出典・引用元があれば入力"/>
+          <input type="text" class="reference-input" name="reference" placeholder="{% trans '出典・引用元があれば入力' %}"/>
 
-          <input class="submit-button" type="submit" value="送信" />
+          <input class="submit-button" type="submit" value="{% trans '送信' %}" />
           
         </form>
       </div>

@@ -1,5 +1,6 @@
 {% extends 'main.html' %}
 {% load static %}
+{% load i18n %}
 
 {% block head %}
     {{ block.super}}
@@ -13,7 +14,7 @@
 
     <div class="favorite-content">
         <div class="title-container">
-            <h1>すきなひとこと</h1>
+            <h1>{% trans "すきなひとこと" %}</h1>
         </div>
 
         <div class="message-container">
@@ -38,10 +39,10 @@
                         <div class="delete-container">
                             <img class="delete-button" id="delete-button" onclick="toggleDelete(event, '{{ each.pk }}')" src="{% static 'image/delete.png' %}" alt="image"> 
                             <div class="is-deleting" id="is-deleting-{{ each.pk }}">
-                                <p>本当に削除しますか？この操作は取り消すことができません。</p>
+                                <p>{% trans "本当に削除しますか？この操作は取り消すことができません。" %}</p>
                                 <div class="option-buttons">
-                                    <button class="delete-no" onclick="toggleDelete(event, '{{ each.pk }}')">いいえ</button>
-                                    <button class="delete-yes" onclick="deleteFav('{{ each.pk }}')">はい</button>
+                                    <button class="delete-no" onclick="toggleDelete(event, '{{ each.pk }}')">{% trans "いいえ" %}</button>
+                                    <button class="delete-yes" onclick="deleteFav('{{ each.pk }}')">{% trans "はい" %}</button>
                                 </div>
                             </div>
                         </div>
@@ -82,7 +83,7 @@
                 </div>
                 {% endfor %}
             {% else %}
-                <p class="no-data">データなし</p>
+                <p class="no-data">{% trans "データなし" %}</p>
             {% endif%}
         </div>
     </div>

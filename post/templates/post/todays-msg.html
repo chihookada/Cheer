@@ -1,5 +1,7 @@
 {% extends 'main.html' %} 
 {% load static %} 
+{% load i18n %}
+
 {% block head %} 
 {{ block.super}}
 <link rel="stylesheet" type="text/css" media="screen" href="{% static 'styles/todays-msg.css' %}"/>
@@ -40,7 +42,7 @@
           {% endif %}
           onclick="upvotePost()" src="{% static 'image/good-circle.png' %}" alt="image"> 
         <div class="good-box">
-          <p>いいね</p>
+          <p>{% trans "いいね" %}</p>
         </div>
       </div>
       <div class="fav-container">
@@ -53,7 +55,7 @@
           id="fav-btn"
           onclick="favPost()" src="{% static 'image/star.png' %}" alt="image"> 
         <div class="fav-box">
-          <p>お気に入り</p>
+          <p>{% trans "お気に入り" %}</p>
         </div>
       </div>
 
@@ -61,15 +63,15 @@
         <img id="report-btn" class="report-btn" onclick="toggleReport(event)" src="{% static 'image/report.png' %}" alt="image"> 
         
         <div class="is-reporting" id="is-reporting">
-          <p>不適切な内容：<br>この投稿を通報しますか？</p>
+          <p>{% trans "不適切な内容：<br>この投稿を通報しますか？" %}</p>
           <div class="option-buttons">
-              <button class="report-no" onclick="toggleReport(event)">いいえ</button>
-              <button class="report-yes" onclick="reportPost()">はい</button>
+              <button class="report-no" onclick="toggleReport(event)">{% trans "いいえ" %}</button>
+              <button class="report-yes" onclick="reportPost()">{% trans "はい" %}</button>
           </div>
         </div>
 
         <div class="report-box">
-          <p>通報</p>
+          <p>{% trans "通報" %}</p>
         </div>
       </div>
 
@@ -149,8 +151,8 @@
     </div>
 
     <div class="go-post">
-      <p class="your-turn">今度はあなたの番です。</p>
-      <a href="{% url 'new-post' %}" class="go-post-button">投稿する</a>
+      <p class="your-turn">{% trans "今度はあなたの番です。" %}</p>
+      <a href="{% url 'new-post' %}" class="go-post-button">{% trans "投稿する" %}</a>
     </div>
   </div>
 </div>

@@ -1,4 +1,5 @@
 {% extends 'main.html' %}
+{% load i18n %}
 
 {% block content %}
 {% if page == 'login' %}
@@ -7,8 +8,8 @@
         {% include 'title.html' %}
         <form method="POST" action="">
             {% csrf_token%}
-            <label>ユーザーネーム</label>
-            <input type="text" name="username" placeholder="ユーザーネームを入力"/>
+            <label>{% trans "ユーザーネーム" %}</label>
+            <input type="text" name="username" placeholder="{% trans 'ユーザーネームを入力' %}"/>
 
             {% if messages %}
             <ul class="messages">
@@ -18,15 +19,15 @@
             </ul>
             {% endif %}
 
-            <label>パスワード</label>
-            <input type="password" name="password" placeholder="パスワードを入力"/>
+            <label>{% trans "パスワード" %}</label>
+            <input type="password" name="password" placeholder="{% trans 'パスワードを入力' %}"/>
 
-            <input type="submit" value="ログイン"/>
+            <input type="submit" value="{% trans 'ログイン' %}"/>
         </form>
     </div>
 
     <div>
-        <p>アカウントがまだない場合は<a href="{% url 'register' %}">こちら</a></p>
+        <p>{% trans "アカウントがまだない場合は" %}<a href="{% url 'register' %}">{% trans "こちら" %}</a></p>
         
     </div>
 </div>
@@ -37,16 +38,16 @@
     <form method="POST" action="">
         {% csrf_token%}
         
-        <label>ユーザーネーム（他のユーザーに表示されることはありません）</label>
-        <input type="text" name="username" placeholder="ユーザーネームを入力"/>
+        <label>{% trans "ユーザーネーム（他のユーザーに表示されることはありません）" %}</label>
+        <input type="text" name="username" placeholder="{% trans 'ユーザーネームを入力' %}"/>
 
-        <label>パスワード（最低8文字）</label>
-        <input type="password" name="password1" placeholder="パスワードを入力"/>
+        <label>{% trans "パスワード（最低8文字）" %}</label>
+        <input type="password" name="password1" placeholder="{% trans 'パスワードを入力' %}"/>
 
-        <label>再入力</label>
-        <input type="password" name="password2" placeholder="パスワードを入力"/>
+        <label>{% trans "再入力" %}</label>
+        <input type="password" name="password2" placeholder="{% trans 'パスワードを入力' %}"/>
 
-        <input type="submit" value="作成"/>
+        <input type="submit" value="{% trans '作成' %}"/>
 
         {% if messages %}
         <ul class="messages">
@@ -58,7 +59,7 @@
 
     </form>
 
-    <p>すでにアカウントをお持ちの方は<a href="{% url 'login' %}">ログイン</a>してください</p>
+    <p>{% trans "すでにアカウントをお持ちの方は" %}<a href="{% url 'login' %}">{% trans "ログイン" %}</a>{% trans "してください" %}</p>
 
 </div>
 {% endif %}

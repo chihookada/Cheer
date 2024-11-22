@@ -1,4 +1,5 @@
 {% extends 'main.html' %}
+{% load i18n %}
 
 {% block content %}
 <div class="completed-content">
@@ -6,15 +7,15 @@
     {% include 'title.html' %}
 
     <div class="thanks-container">
-        <h3>すべてのメッセージを受けとり終わったようです。</h3>
+        <h3>{% trans "すべてのメッセージを受けとり終わったようです。" %}</h3>
     </div>
 
     <div class="go-post">
-        <p>もっと投稿しますか？</p>
-        <a href="{% url 'new-post' %}" class="go-post-button">投稿する</a>
+        <p>{% trans "もっと投稿しますか？" %}</p>
+        <a href="{% url 'new-post' %}" class="go-post-button">{% trans "投稿する" %}</a>
 
-        <p>履歴をリセットして、もう一度はじめから受けとりますか？（お気に入りはリセットされません）</p>
-        <a href="{% url 'reset-history' %}" class="go-post-button">はじめから</a>
+        <p>{% trans "履歴をリセットして、もう一度はじめから受けとりますか？（お気に入りはリセットされません）" %}</p>
+        <a href="{% url 'reset-history' %}" class="go-post-button">{% trans "はじめから" %}</a>
     </div>
 </div>
 {% endblock %}
