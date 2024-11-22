@@ -24,7 +24,7 @@
             </div>
           </div>
         </div>
-        {% if single_msg.reference %}
+        {% if single_msg.reference and single_msg.referenceActive %}
         <div class="reference-box">
           <p class="reference">{{single_msg.reference}}</p>
         </div>
@@ -35,7 +35,7 @@
       <div class="good-container">
         <img 
           id="good-btn" 
-          {% if like %}
+          {% if history.is_liked %}
             class="disabled"
           {% endif %}
           onclick="upvotePost()" src="{% static 'image/good-circle.png' %}" alt="image"> 
@@ -45,7 +45,7 @@
       </div>
       <div class="fav-container">
         <img 
-          {% if favorite %}
+          {% if history.is_favorite %}
             class="on"
           {% else %}
             class="off"
@@ -85,8 +85,8 @@
             url: `/post/upvote/`, // URL pattern to call the view
             type: "POST",
             data: {
-              user_id: "{{ request.user.id }}",
-              post_id: "{{ single_msg.id}}",
+              post_id: "{{ single_msg.id }}",
+              history: "{{ history.id }}",
               csrfmiddlewaretoken: "{{ csrf_token }}", // CSRF token for security
             },
             success: function (response) {
@@ -100,16 +100,17 @@
           });
         }
         function favPost() {
-          var favBtn = $("#fav-btn");
-          favBtn.toggleClass("on").toggleClass("off");
-
           $.ajax({
             url: `/post/favorite/`, // URL pattern to call the view
             type: "POST",
             data: {
-              user_id: "{{ request.user.id }}",
               post_id: "{{ single_msg.id}}",
+              history: "{{ history.id }}",
               csrfmiddlewaretoken: "{{ csrf_token }}", // CSRF token for security
+            },
+            success: function(){
+              var favBtn = $("#fav-btn");
+              favBtn.toggleClass("on").toggleClass("off");
             },
             error: function (response) {
               console.log("Fav unsuccessful: Error->", response);
@@ -118,22 +119,22 @@
           });
         }
         function reportPost() {
-            $.ajax({
-                url: `/post/report/`,  // URL pattern to call the view
-                type: 'POST',
-                data: {
-                  user_id: "{{ request.user.id }}",
-                  post_id: "{{ single_msg.id}}",
-                  csrfmiddlewaretoken: "{{ csrf_token }}", // CSRF token for security
-                },
-                success: function(data) {
-                  window.location.href = data.url;
-                },
-                error: function(response) {
-                  console.error("Report unsuccessful: Error->", response);
-                  alert("Something went wrong");
-        },
-            });
+          $.ajax({
+            url: `/post/report/`,  // URL pattern to call the view
+            type: 'POST',
+            data: {
+              post_id: "{{ single_msg.id}}",
+              history: "{{ history.id }}",
+              csrfmiddlewaretoken: "{{ csrf_token }}", // CSRF token for security
+            },
+            success: function(data) {
+              window.location.href = data.url;
+            },
+            error: function(response) {
+              console.error("Report unsuccessful: Error->", response);
+              alert("Something went wrong");
+            },
+          });
         }
         function toggleReport(event) {
           const window = document.getElementById(`is-reporting`);

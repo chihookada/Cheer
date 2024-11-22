@@ -5,7 +5,7 @@ from django.contrib.auth.models import AbstractUser
 
 class User(AbstractUser):
     username = models.CharField(max_length=100, unique=True)
-    reported = models.IntegerField(default=0)
+    active = models.BooleanField(default=True)
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = []

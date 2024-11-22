@@ -16,22 +16,20 @@ from google.cloud import language_v2
 import vertexai
 from vertexai.generative_models import GenerativeModel
 
-def get_todays_msg_id(user_id):
-    post = History.objects.filter(user_id=user_id, is_reported=False, created_at__date=date.today()).first()
-    return post.post_id.pk if post else -1
+# if history exists and is_seen = true -> second time seem
+# if history exists and is_seen = fale -> first time seem
+# once seen, is_seen = true
 
 @login_required(login_url='login')
 def go_todays_msg(request):
     msg_set = History.objects.filter(user_id=request.user.id, created_at__date=date.today(), is_reported=False)
     
     if msg_set.exists(): # already got a message today
-        his_object = msg_set.first()
-        todays_msg = Post.objects.get(id=his_object.post_id.pk)
-        its_history = History.objects.get(id=his_object.pk)
+        history = msg_set.first()
+        todays_msg = Post.objects.get(id=history.post_id.pk)
         context = {
             "single_msg": todays_msg,
-            "like": its_history.is_liked,
-            "favorite": its_history.is_favorite
+            "history": history
         }
         return render(request, "post/todays-msg.html",  context)
     
@@ -45,29 +43,35 @@ def go_todays_msg(request):
         elif unseen_msges == "seen all":
             return render(request, "post/completed.html")
 
-        else:
-            single_msg = random.choice(unseen_msges) #choose 1 randomly
+        else: #choose 1 message randomly
+            single_msg = random.choice(unseen_msges) 
             single_msg.views += 1
             single_msg.save()
-            msg_id = single_msg.pk
             
             # store the info to history
-            form = HistoryForm({'user_id': request.user.id, 'post_id': msg_id})
+            form = HistoryForm({'user_id': request.user.id, 'post_id': single_msg.pk, 'is_seen': True})
             if form.is_valid():
-                form.save()
+                history = form.save(commit=False)
+                history.save()
             else: return HttpResponse("エラーが発生しました。")# when the form is invalid
 
-        return render(request, "post/todays-msg.html",  {'single_msg': single_msg})
+        return render(request, "post/todays-msg.html",  {'single_msg': single_msg, "history": history})
 
 def get_unseen(user_id):
+    """
+        Returns a list of unseen messages. Returns "seen all" if all messages have been seen.
+    """
     messages = list(Post.objects.all())
-    history = History.objects.filter(user_id=user_id)
     if messages == []: # no message in the database
         return messages
     
-    elif len(history) == len(messages): # all messages have been seen
-        return "seen all"
+    history = History.objects.filter(user_id=user_id)
     
+    if len(history) == len(messages):
+        history = history.filter(is_seen=True)
+        if history.count() == len(messages) or history.count() == 0:
+            return "seen all"
+        
     seen_post_ids = history.values_list('post_id', flat=True)
     unseen_messages = list(Post.objects.exclude(id__in=seen_post_ids))
     return unseen_messages        
@@ -102,67 +106,66 @@ def create_new_post(request):
     context = {"form": form}
     return render(request, "post/new-post.html", context)
 
-#TODO at midnight, collect upvote and notify the poster
-
-#TODO if num of report is more than 50% and total view is more than 10, deactivate
 
 @login_required(login_url='login')
 def upvote(request):
-    msg_id = get_todays_msg_id(request.user.id)
     if request.method == "POST":
-        if msg_id != -1:
-            try:
-                post = Post.objects.get(id=msg_id)
-                hist = History.objects.filter(user_id=request.user.id, post_id=msg_id, created_at__date=date.today(), is_reported=False).first()
-                
-                post.likes += 1
-                post.save()
-                hist.is_liked = True
-                hist.save()
-                return JsonResponse({}, status=200)  # Successful upvote with empty response
-            except:
-                return JsonResponse({}, status=400)
-        print("msg_id initial state")
+        try:
+            post = Post.objects.get(id=request.POST.get('post_id'))
+            hist = History.objects.get(id=request.POST.get('history'))
+            
+            post.likes += 1
+            post.save()
+            hist.is_liked = True
+            hist.save()
+            return JsonResponse({}, status=200)  # Successful upvote with empty response
+        except:
+            return JsonResponse({}, status=400)
     return JsonResponse({}, status=400)  # Bad request with empty response
     
 @login_required(login_url='login')
 def favorite(request):
     if request.method == "POST":
         try:
-            history = History.objects.get(user_id=request.POST.get('user_id'), post_id=request.POST.get('post_id'))
+            history = History.objects.get(id=request.POST.get('history'))
             history.is_favorite = not history.is_favorite
             history.save()
             return JsonResponse({}, status=200) # when history exists
         except:
             return JsonResponse({}, status=400)
-    return JsonResponse({}, status=400) # when request.method != "POST"
+    return JsonResponse({}, status=400)
 
 @login_required(login_url='login')
 def report(request):
-    msg_id = get_todays_msg_id(request.user.id)
     if request.method == "POST":
-        if msg_id != -1:
-            try:
-                post = Post.objects.get(id=msg_id)
-                hist = History.objects.filter(user_id=request.user.id, post_id=msg_id, created_at__date=date.today(), is_reported=False).first()
-                hist.is_reported = True
-                hist.save()
-
-                post.reports += 1
-                post.save()
-
-                return JsonResponse({'url': reverse('home'),})
-            except:
-               return HttpResponseBadRequest()
-        print("msg_id initial state")
+        try:
+            post = Post.objects.get(id=request.POST.get('post_id'))
+            hist = History.objects.get(id=request.POST.get('history'))
+            hist.is_reported = True
+            hist.save()
+            post.reports += 1
+            post.save()
+            check_num_report(post)
+            return JsonResponse({'url': reverse('home'),})
+        except:
+           return HttpResponseBadRequest()
     return HttpResponseBadRequest()  # Bad request with empty response
     
+def check_num_report(post):
+    """
+        Deactivates a post if the number of report is >50% of the total number of view when it is >10
+    """
+    if post.views > 10 and post.reports/post.view > 0.5:
+        post.active = False
+        post.save()    
+
+
 @login_required(login_url='login')
 def posted(request):
     return render(request, "post/posted.html")
 
 def reset_history(request):
-    #TODO reset
+    History.objects.filter(user_id=request.user.id).update(is_seen=False)
     return redirect('home')
 
 def fetch_analysis(content, reference=None, post_id=None):
@@ -233,7 +236,7 @@ def store_result(sentiment, moderate, gemini, is_content, post_id):
         if judge(evaluation.instance.id) == False and is_content:
             post.active = False
         elif judge(evaluation.instance.id) == False and not is_content:
-            post.referenceActive = False # TODO don't show reference when this is false
+            post.referenceActive = False
     
     else:
         print("evaluation not valid")

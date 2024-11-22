@@ -1,17 +1,58 @@
-from datetime import date
 from django.shortcuts import redirect, render
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import logout
+from django.utils.translation import gettext as _
+
+from login.models import User
 from post.models import History, Post
 
+from datetime import date, timedelta
 
 # Create your views here.
 @login_required(login_url='login')
 def go_home(request):
-    todays_msg = History.objects.filter(user_id=request.user.id, created_at__date=date.today(), is_reported=False)
-    if todays_msg.exists():
-        return redirect('todays-msg')  # Redirect if history exists for today
-    return render(request, "home/home.html")
+    """
+        Goes to the home page after checking if a message to show exists. 
+        Depending on whether it has one, it redirects to todays-msg page or runs a selection to pick a new one.
+    """
+    if request.user.active is False:
+        logout(request)
+
+    todays_msg = History.objects.filter(user_id=request.user.id, created_at__date=date.today())
+    if todays_msg.filter(is_reported=False).exists(): # has a message to be shown
+        return redirect('todays-msg') 
+    elif todays_msg.exists(): # has reported a post
+        return render(request, "home/home.html")
+    
+    # first log-in of the day, collect the number of Goods from yesterday
+    good_count = review(request)
+    context = {"count": good_count, "warn": assess_user(request)}
+    return render(request, "home/home.html", context)
+
+def review(request):
+    """
+        Collect the number of Goods received yesterday on previous posts and return it
+    """
+    posts_yesterday = History.objects.filter(created_at__date=date.today()-timedelta(days=1), post_id__user_id=request.user.id, is_liked = True)
+    return posts_yesterday.count()
+
+def assess_user(request):
+    """
+        Get the number of posts that are deactivated from innappropriate posts
+        Returns None: no warning, 1: first warning, 2: last warning, 3: account deactivation
+    """
+    posts = Post.objects.filter(user_id=request.user.id, reports__gt=5, active=False)
+    if posts.count() > 6:
+        User.objects.filter(id=request.user_id).active = False
+        logout(request)
+        return 3
+    elif posts.count() > 4:
+        return 2
+    elif posts.count() > 2:
+        return 1
+    return
+    
 
 def go_home_guest(request):
     return render(request, "home/home-guest.html")
@@ -38,6 +79,9 @@ def go_favorite(request):
     return render(request, "home/favorite.html", context)
 
 def get_posts_by_historys(historys):
+    """
+        Helper function to return Post objects from given historys
+    """
     ids = historys.values_list('post_id', flat=True)
     return list(Post.objects.filter(id__in=ids))
 

@@ -55,8 +55,8 @@ class History(models.Model):
     user_id = models.ForeignKey(User, on_delete=models.CASCADE) # when the user is deleted, delete user_fav too
     post_id = models.ForeignKey(Post, on_delete=models.PROTECT) # when the post is deleted, do not delete the user_fav
     created_at = models.DateTimeField(auto_now_add=True)
+    is_seen = models.BooleanField(default=False)
     is_favorite = models.BooleanField(default=False)
-    favorited_at = models.DateTimeField(null=True, blank=True)
     is_liked = models.BooleanField(default=False)
     is_reported = models.BooleanField(default=False)
 

@@ -1,7 +1,7 @@
 @font-face {
   font-family: 'Kaisei Opti';
   src: local('Kaisei Opti'),
-       url('/static/fonts/KaiseiOpti-Medium.ttf') format("truetype");
+       url('/static/fonts/KaiseiOpti-Regular.ttf') format("truetype");
 }
 
 body{
