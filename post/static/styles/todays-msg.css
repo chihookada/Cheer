@@ -76,6 +76,10 @@
     font-weight: bold;
 }
 
+#translate-back-button{
+    visibility: hidden;
+}
+
 .buttons-footer{
     display: flex;
     flex-direction: row;

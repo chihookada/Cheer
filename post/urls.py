@@ -10,4 +10,5 @@ urlpatterns = [
     path('upvote/', views.upvote, name='upvote'),
     path('favorite/', views.favorite, name='favorite'),
     path('report/', views.report, name='report'),
+    path('translate/', views.translate, name='translate'),
 ]

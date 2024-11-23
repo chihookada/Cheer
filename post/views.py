@@ -3,8 +3,8 @@ from django.urls import reverse
 from django.shortcuts import render, redirect
 from django.http import HttpResponseBadRequest, JsonResponse, HttpResponse
 from django.contrib.auth.decorators import login_required
+import environ
 
-from home.views import go_home
 from .models import Post, History, Evaluation
 from .forms import PostForm, HistoryForm, EvaluationForm
 import random
@@ -13,12 +13,12 @@ import threading
 
 # Imports the Google Cloud client library
 from google.cloud import language_v2
+from google.cloud import translate_v3 as trans
 import vertexai
 from vertexai.generative_models import GenerativeModel
 
-# if history exists and is_seen = true -> second time seem
-# if history exists and is_seen = fale -> first time seem
-# once seen, is_seen = true
+env = environ.Env()
+environ.Env.read_env()
 
 @login_required(login_url='login')
 def go_todays_msg(request):
@@ -106,6 +106,31 @@ def create_new_post(request):
     context = {"form": form}
     return render(request, "post/new-post.html", context)
 
+@login_required(login_url='login')
+def translate(request):
+    PROJECT_ID = env('PROJECT_ID')
+    assert PROJECT_ID
+    PARENT = f"projects/{PROJECT_ID}"
+    try:
+        translation = translate_text(PARENT, request.POST.get('content'), "ja")  #TODO change target language accordingly
+        translated_text = translation.translated_text
+        return JsonResponse({"content": translated_text }, status=200)
+    except:
+        return JsonResponse({}, status=400)
+
+
+def translate_text(PARENT: str, text: str, target_language_code: str) -> trans.Translation:
+    client = trans.TranslationServiceClient()
+    try:
+        response = client.translate_text(
+            parent=PARENT,
+            contents=[text],
+            target_language_code=target_language_code,
+        )
+        return response.translations[0]
+    except:
+        return
+    
 
 @login_required(login_url='login')
 def upvote(request):
@@ -170,7 +195,7 @@ def reset_history(request):
 
 def fetch_analysis(content, reference=None, post_id=None):
 
-    vertexai.init(project="direct-volt-434413-b1", location="asia-northeast1")
+    vertexai.init(project=env('PROJECT_ID'), location="asia-northeast1")
     model = GenerativeModel("gemini-1.5-flash-002")
     client = language_v2.LanguageServiceClient()
 

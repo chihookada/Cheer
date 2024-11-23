@@ -19,6 +19,9 @@ def go_home(request):
     if request.user.active is False:
         logout(request)
 
+    # if User.objects.get(id=request.user.id).lang == "":
+        
+
     todays_msg = History.objects.filter(user_id=request.user.id, created_at__date=date.today())
     if todays_msg.filter(is_reported=False).exists(): # has a message to be shown
         return redirect('todays-msg') 

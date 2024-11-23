@@ -16,7 +16,7 @@
   <div class="message-container-outer">
     <div class="message-container">
         <div class="content-box">
-          <div class="content">
+          <div class="content" id="content">
             <div class="quote-begin-container">
               <img class="quote-begin" src="{% static 'image/quote-begin.png' %}" alt="image">  
             </div>
@@ -28,9 +28,14 @@
         </div>
         {% if single_msg.reference and single_msg.referenceActive %}
         <div class="reference-box">
-          <p class="reference">{{single_msg.reference}}</p>
+          <p class="reference" id="reference">{{single_msg.reference}}</p>
         </div>
         {% endif %}
+    </div>
+
+    <div class="translate-container">
+      <button onclick="get_translation()" class="translate-button" id="translate-button">{% trans "翻訳する" %}</button>
+      <button onclick="translateBack()" class="translate-back-button" id="translate-back-button">{% trans "原文に戻す" %}</button>
     </div>
 
     <div class="buttons-footer">
@@ -74,80 +79,6 @@
           <p>{% trans "通報" %}</p>
         </div>
       </div>
-
-      <!-- <button id="report-btn" onclick="reportPost">Report</button> -->
-
-      <script>
-        function upvotePost() {
-          var goodBtn = $("#good-btn");
-          if (goodBtn.prop("disabled") || goodBtn.hasClass("disabled")) {
-            return;
-          }
-          $.ajax({
-            url: `/post/upvote/`, // URL pattern to call the view
-            type: "POST",
-            data: {
-              post_id: "{{ single_msg.id }}",
-              history: "{{ history.id }}",
-              csrfmiddlewaretoken: "{{ csrf_token }}", // CSRF token for security
-            },
-            success: function (response) {
-              goodBtn.prop("disabled", true);
-              goodBtn.addClass("disabled");
-            },
-            error: function (response) {
-              console.log("Upvote unsuccessful: Error->", response);
-              alert("Something went wrong");
-            },
-          });
-        }
-        function favPost() {
-          $.ajax({
-            url: `/post/favorite/`, // URL pattern to call the view
-            type: "POST",
-            data: {
-              post_id: "{{ single_msg.id}}",
-              history: "{{ history.id }}",
-              csrfmiddlewaretoken: "{{ csrf_token }}", // CSRF token for security
-            },
-            success: function(){
-              var favBtn = $("#fav-btn");
-              favBtn.toggleClass("on").toggleClass("off");
-            },
-            error: function (response) {
-              console.log("Fav unsuccessful: Error->", response);
-              alert("Something went wrong");
-            },
-          });
-        }
-        function reportPost() {
-          $.ajax({
-            url: `/post/report/`,  // URL pattern to call the view
-            type: 'POST',
-            data: {
-              post_id: "{{ single_msg.id}}",
-              history: "{{ history.id }}",
-              csrfmiddlewaretoken: "{{ csrf_token }}", // CSRF token for security
-            },
-            success: function(data) {
-              window.location.href = data.url;
-            },
-            error: function(response) {
-              console.error("Report unsuccessful: Error->", response);
-              alert("Something went wrong");
-            },
-          });
-        }
-        function toggleReport(event) {
-          const window = document.getElementById(`is-reporting`);
-          const clickedElement = event.target;
-          if (clickedElement.classList.contains("report-no")) {
-              window.style.visibility = "hidden";
-          } else if (clickedElement.classList.contains("report-btn")){
-              window.style.visibility = "visible"; 
-          }
-        }
-      </script>
     </div>
 
     <div class="go-post">
@@ -155,5 +86,112 @@
       <a href="{% url 'new-post' %}" class="go-post-button">{% trans "投稿する" %}</a>
     </div>
   </div>
+
+  <script>
+    function get_translation() {
+      const content = document.getElementById(`content`);
+      const translate_button = document.getElementById(`translate-button`);
+      const translate_back_button = document.getElementById(`translate-back-button`);
+      
+      $.ajax({
+        url: `/post/translate/`, // URL pattern to call the view
+        type: "POST",
+        data: {
+          content: "{{ single_msg.content }}",
+          csrfmiddlewaretoken: "{{ csrf_token }}", // CSRF token for security
+        },
+        success: function (response) {
+          content.innerText = response.content;
+          translate_button.style.visibility = "hidden";
+          translate_back_button.style.visibility = "visible";
+        },
+        error: function (response) {
+          console.log("Translation unsuccessful: Error->", response);
+          alert("Something went wrong");
+        },
+      });
+    }
+
+    const msg_content = "{{ single_msg.content }}"; 
+
+    function translateBack() {
+      const content = document.getElementById(`content`);
+      const translate_button = document.getElementById(`translate-button`);
+      const translate_back_button = document.getElementById(`translate-back-button`);
+      content.innerText = msg_content;
+      translate_button.style.visibility = "visible";
+      translate_back_button.style.visibility = "hidden";
+    }
+
+    function upvotePost() {
+      var goodBtn = $("#good-btn");
+      if (goodBtn.prop("disabled") || goodBtn.hasClass("disabled")) {
+        return;
+      }
+      $.ajax({
+        url: `/post/upvote/`, // URL pattern to call the view
+        type: "POST",
+        data: {
+          post_id: "{{ single_msg.id }}",
+          history: "{{ history.id }}",
+          csrfmiddlewaretoken: "{{ csrf_token }}", // CSRF token for security
+        },
+        success: function (response) {
+          goodBtn.prop("disabled", true);
+          goodBtn.addClass("disabled");
+        },
+        error: function (response) {
+          console.log("Upvote unsuccessful: Error->", response);
+          alert("Something went wrong");
+        },
+      });
+    }
+    function favPost() {
+      $.ajax({
+        url: `/post/favorite/`, // URL pattern to call the view
+        type: "POST",
+        data: {
+          post_id: "{{ single_msg.id}}",
+          history: "{{ history.id }}",
+          csrfmiddlewaretoken: "{{ csrf_token }}", // CSRF token for security
+        },
+        success: function(){
+          var favBtn = $("#fav-btn");
+          favBtn.toggleClass("on").toggleClass("off");
+        },
+        error: function (response) {
+          console.log("Fav unsuccessful: Error->", response);
+          alert("Something went wrong");
+        },
+      });
+    }
+    function reportPost() {
+      $.ajax({
+        url: `/post/report/`,  // URL pattern to call the view
+        type: 'POST',
+        data: {
+          post_id: "{{ single_msg.id}}",
+          history: "{{ history.id }}",
+          csrfmiddlewaretoken: "{{ csrf_token }}", // CSRF token for security
+        },
+        success: function(data) {
+          window.location.href = data.url;
+        },
+        error: function(response) {
+          console.error("Report unsuccessful: Error->", response);
+          alert("Something went wrong");
+        },
+      });
+    }
+    function toggleReport(event) {
+      const window = document.getElementById(`is-reporting`);
+      const clickedElement = event.target;
+      if (clickedElement.classList.contains("report-no")) {
+          window.style.visibility = "hidden";
+      } else if (clickedElement.classList.contains("report-btn")){
+          window.style.visibility = "visible"; 
+      }
+    }
+  </script>
 </div>
 {% endblock %}
