@@ -19,9 +19,6 @@ def go_home(request):
     if request.user.active is False:
         logout(request)
 
-    # if User.objects.get(id=request.user.id).lang == "":
-        
-
     todays_msg = History.objects.filter(user_id=request.user.id, created_at__date=date.today())
     if todays_msg.filter(is_reported=False).exists(): # has a message to be shown
         return redirect('todays-msg') 
@@ -55,7 +52,6 @@ def assess_user(request):
     elif posts.count() > 2:
         return 1
     return
-    
 
 def go_home_guest(request):
     return render(request, "home/home-guest.html")
@@ -90,7 +86,8 @@ def get_posts_by_historys(historys):
 
 @login_required(login_url='login')
 def go_settings(request):
-    return render(request, "home/settings.html")
+    languages = [{'code': 'en', 'name_local': 'English'}, {'code': 'ja', 'name_local': '日本語'}]
+    return render(request, "home/settings.html", {"languages": languages})
 
 @login_required(login_url='login')
 def delete_post(request):
@@ -106,7 +103,6 @@ def delete_post(request):
 
 @login_required(login_url='login')
 def delete_fav(request):
-    print("here2")
     if request.method == "POST":
         history = History.objects.get(post_id=request.POST.get('post_id'), user_id=request.user.id)
         if history:

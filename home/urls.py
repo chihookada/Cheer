@@ -11,4 +11,5 @@ urlpatterns = [
     path('delete-f/', views.delete_fav, name="delete_fav"),
     path('post/', include('post.urls')),
     path('auth/', include('login.urls')),
+    path("i18n/", include("django.conf.urls.i18n")),
 ]

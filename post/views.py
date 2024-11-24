@@ -1,9 +1,12 @@
 from datetime import date
+import time
 from django.urls import reverse
 from django.shortcuts import render, redirect
 from django.http import HttpResponseBadRequest, JsonResponse, HttpResponse
 from django.contrib.auth.decorators import login_required
 import environ
+
+from login.models import User
 
 from .models import Post, History, Evaluation
 from .forms import PostForm, HistoryForm, EvaluationForm
@@ -67,13 +70,13 @@ def get_unseen(user_id):
     
     history = History.objects.filter(user_id=user_id)
     
-    if len(history) == len(messages):
+    if len(history) == len(messages): # TODO consider deleted and innacive posts
         history = history.filter(is_seen=True)
         if history.count() == len(messages) or history.count() == 0:
             return "seen all"
         
     seen_post_ids = history.values_list('post_id', flat=True)
-    unseen_messages = list(Post.objects.exclude(id__in=seen_post_ids))
+    unseen_messages = list(Post.objects.exclude(id__in=seen_post_ids, deleted=True, active=False))
     return unseen_messages        
 
 
@@ -89,10 +92,12 @@ def create_new_post(request):
         form = PostForm(request.POST)
         if form.is_valid():
             form.instance.user_id = request.user
-            form.save()
+            form.save() 
+            flat_conent = form.cleaned_data['content']
+            flat_reference = form.cleaned_data['reference']
             thread = threading.Thread(target=fetch_analysis, args=(
-                form.cleaned_data['content'], 
-                form.cleaned_data['reference'], 
+                flat_conent,
+                flat_reference,
                 form.instance.id
             ))
             thread.start()
@@ -112,11 +117,12 @@ def translate(request):
     assert PROJECT_ID
     PARENT = f"projects/{PROJECT_ID}"
     try:
-        translation = translate_text(PARENT, request.POST.get('content'), "ja")  #TODO change target language accordingly
+        translation = translate_text(PARENT, request.POST.get('content'), request.POST.get('language'))
         translated_text = translation.translated_text
         return JsonResponse({"content": translated_text }, status=200)
-    except:
-        return JsonResponse({}, status=400)
+    except Exception as e:
+        print(str(e))
+        return JsonResponse({"error": str(e)}, status=400)
 
 
 def translate_text(PARENT: str, text: str, target_language_code: str) -> trans.Translation:
@@ -126,10 +132,12 @@ def translate_text(PARENT: str, text: str, target_language_code: str) -> trans.T
             parent=PARENT,
             contents=[text],
             target_language_code=target_language_code,
+            mime_type="text/plain"
         )
         return response.translations[0]
-    except:
-        return
+    except trans.GoogleAPIError as e:  
+        print(f"Translation API Error: {e}")  # Print the error for debugging
+        return None
     
 
 @login_required(login_url='login')
@@ -144,8 +152,9 @@ def upvote(request):
             hist.is_liked = True
             hist.save()
             return JsonResponse({}, status=200)  # Successful upvote with empty response
-        except:
-            return JsonResponse({}, status=400)
+        except Exception as e:
+            print(str(e))
+            return JsonResponse({"error": str(e)}, status=400)
     return JsonResponse({}, status=400)  # Bad request with empty response
     
 @login_required(login_url='login')
@@ -156,8 +165,9 @@ def favorite(request):
             history.is_favorite = not history.is_favorite
             history.save()
             return JsonResponse({}, status=200) # when history exists
-        except:
-            return JsonResponse({}, status=400)
+        except Exception as e:
+            print(str(e))
+            return JsonResponse({"error": str(e)}, status=400)
     return JsonResponse({}, status=400)
 
 @login_required(login_url='login')
@@ -172,8 +182,9 @@ def report(request):
             post.save()
             check_num_report(post)
             return JsonResponse({'url': reverse('home'),})
-        except:
-           return HttpResponseBadRequest()
+        except Exception as e:
+            print(str(e))
+            return JsonResponse({"error": str(e)}, status=400)
     return HttpResponseBadRequest()  # Bad request with empty response
     
 def check_num_report(post):
@@ -205,16 +216,36 @@ def fetch_analysis(content, reference=None, post_id=None):
         )
 
         # Detects the sentiment of the text
-        sentiment = client.analyze_sentiment(request={"document": document})
-
-        moderate = client.moderate_text(request={"document": document})
+        try:
+            sentiment = client.analyze_sentiment(request={"document": document})
+            moderate = client.moderate_text(request={"document": document})
+        except Exception as e:
+            print(e)
+            raise SystemError
 
         if is_content:
-            gemini = model.generate_content("is "+text+ "a positive and encouraging message? yes or no")
+            for i in range(0, 5):
+                try:
+                    gemini = model.generate_content("is "+text+ "a positive and encouraging message? yes or no")
+                    break
+                except Exception as e:
+                    print(e)
+                    time.sleep(2 ** i)
+                    if i == 4:
+                        raise SystemError
         else:
-            gemini = model.generate_content("is "+text+ "a person or something that can be used as a reference? yes or no")
-
+            for i in range(0, 5):
+                try:
+                    print(i)
+                    gemini = model.generate_content("is "+text+ "a person or something that can be used as a reference? yes or no")
+                    break
+                except Exception as e:
+                    print(e)
+                    time.sleep(2 ** i)
+                    if i == 4:
+                        raise SystemError
         store_result(sentiment, moderate, gemini, is_content, post_id)
+
     # Analyze both content and reference
     analyze_text(content, True)
     if reference == None or reference != "":  # Only analyze reference if it's not empty
@@ -258,10 +289,10 @@ def store_result(sentiment, moderate, gemini, is_content, post_id):
     if evaluation.is_valid():
         evaluation.save()
 
-        if judge(evaluation.instance.id) == False and is_content:
-            post.active = False
-        elif judge(evaluation.instance.id) == False and not is_content:
-            post.referenceActive = False
+        if judge(evaluation.instance.id) == True and is_content:
+            post.active = True
+        elif judge(evaluation.instance.id) == True and not is_content:
+            post.referenceActive = True
     
     else:
         print("evaluation not valid")
@@ -270,10 +301,12 @@ def store_result(sentiment, moderate, gemini, is_content, post_id):
         else:
             post.referenceChecked = False
         post.active = False
-
     post.save()
 
 def judge(evaluation_id):
+    """
+        returns whether the post/reference is appropriate or not
+    """
     evaluation = Evaluation.objects.get(id=evaluation_id)
 
     criteria = { # two or more Falses below is inappropriate

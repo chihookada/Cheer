@@ -34,6 +34,7 @@
     </div>
 
     <div class="translate-container">
+      {% get_current_language as LANGUAGE_CODE %}
       <button onclick="get_translation()" class="translate-button" id="translate-button">{% trans "翻訳する" %}</button>
       <button onclick="translateBack()" class="translate-back-button" id="translate-back-button">{% trans "原文に戻す" %}</button>
     </div>
@@ -92,21 +93,27 @@
       const content = document.getElementById(`content`);
       const translate_button = document.getElementById(`translate-button`);
       const translate_back_button = document.getElementById(`translate-back-button`);
-      
       $.ajax({
         url: `/post/translate/`, // URL pattern to call the view
         type: "POST",
         data: {
           content: "{{ single_msg.content }}",
+          language: "{{ LANGUAGE_CODE }}",
           csrfmiddlewaretoken: "{{ csrf_token }}", // CSRF token for security
         },
         success: function (response) {
-          content.innerText = response.content;
+          content.innerHTML = `<div class="quote-begin-container">
+              <img class="quote-begin" src="{% static 'image/quote-begin.png' %}" alt="image">  
+            </div>
+            ${response.content}
+            <div class="quote-end-container">
+              <img class="quote-end" src="{% static 'image/quote-end.png' %}" alt="image">
+            </div>`;
           translate_button.style.visibility = "hidden";
           translate_back_button.style.visibility = "visible";
         },
         error: function (response) {
-          console.log("Translation unsuccessful: Error->", response);
+          console.log("Translation unsuccessful: Error->", response.responseJSON.error);
           alert("Something went wrong");
         },
       });
@@ -118,7 +125,13 @@
       const content = document.getElementById(`content`);
       const translate_button = document.getElementById(`translate-button`);
       const translate_back_button = document.getElementById(`translate-back-button`);
-      content.innerText = msg_content;
+      content.innerHTML = `<div class="quote-begin-container">
+              <img class="quote-begin" src="{% static 'image/quote-begin.png' %}" alt="image">  
+            </div>
+            ${msg_content}
+            <div class="quote-end-container">
+              <img class="quote-end" src="{% static 'image/quote-end.png' %}" alt="image">
+            </div>`;
       translate_button.style.visibility = "visible";
       translate_back_button.style.visibility = "hidden";
     }
@@ -141,7 +154,7 @@
           goodBtn.addClass("disabled");
         },
         error: function (response) {
-          console.log("Upvote unsuccessful: Error->", response);
+          console.log("Upvote unsuccessful: Error->", response.responseJSON.error);
           alert("Something went wrong");
         },
       });
@@ -160,7 +173,7 @@
           favBtn.toggleClass("on").toggleClass("off");
         },
         error: function (response) {
-          console.log("Fav unsuccessful: Error->", response);
+          console.log("Fav unsuccessful: Error->", response.responseJSON.error);
           alert("Something went wrong");
         },
       });
@@ -178,7 +191,7 @@
           window.location.href = data.url;
         },
         error: function(response) {
-          console.error("Report unsuccessful: Error->", response);
+          console.error("Report unsuccessful: Error->", response.responseJSON.error);
           alert("Something went wrong");
         },
       });

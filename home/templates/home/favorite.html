@@ -74,7 +74,7 @@
                                 document.getElementById(`message-wrapper-${post_id}`).remove(); 
                             },
                             error: function (response) {
-                                console.log("delete unsuccessful: Error->", response);
+                                console.log("delete unsuccessful: Error->", response.responseJSON.error);
                             },
                             });
                         }
