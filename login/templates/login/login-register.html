@@ -1,15 +1,59 @@
 {% extends 'main.html' %}
 {% load i18n %}
 
+{% block head %} 
+{{ block.super}}
+
+{% endblock %} 
+
 {% block content %}
-{% if page == 'login' %}
-<div class="login-content">
-    <div>
+<div>
+    {% if page == 'login' %}
+    <div class="login-content">
+        <div>
+            {% include 'title.html' %}
+            <form method="POST" action="">
+                {% csrf_token%}
+                <label>{% trans "ユーザーネーム" %}</label>
+                <input type="text" name="username" placeholder="{% trans 'ユーザーネームを入力' %}"/>
+
+                {% if messages %}
+                <ul class="messages">
+                    {% for message in messages %}
+                    <li>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+
+                <label>{% trans "パスワード" %}</label>
+                <input type="password" name="password" placeholder="{% trans 'パスワードを入力' %}"/>
+
+                <input type="submit" value="{% trans 'ログイン' %}"/>
+            </form>
+        </div>
+
+        <div>
+            <p>{% trans "アカウントがまだない場合は" %}<a href="{% url 'register' %}">{% trans "こちら" %}</a></p>
+            
+        </div>
+    </div>
+
+    {% else %}
+    <div class="register-content"></div>
         {% include 'title.html' %}
         <form method="POST" action="">
             {% csrf_token%}
-            <label>{% trans "ユーザーネーム" %}</label>
+            
+            <label>{% trans "ユーザーネーム（他のユーザーに表示されることはありません）" %}</label>
             <input type="text" name="username" placeholder="{% trans 'ユーザーネームを入力' %}"/>
+
+            <label>{% trans "パスワード（最低8文字）" %}</label>
+            <input type="password" name="password1" placeholder="{% trans 'パスワードを入力' %}"/>
+
+            <label>{% trans "再入力" %}</label>
+            <input type="password" name="password2" placeholder="{% trans 'パスワードを入力' %}"/>
+
+            <input type="submit" value="{% trans '作成' %}"/>
 
             {% if messages %}
             <ul class="messages">
@@ -19,48 +63,11 @@
             </ul>
             {% endif %}
 
-            <label>{% trans "パスワード" %}</label>
-            <input type="password" name="password" placeholder="{% trans 'パスワードを入力' %}"/>
-
-            <input type="submit" value="{% trans 'ログイン' %}"/>
         </form>
+
+        <p>{% trans "すでにアカウントをお持ちの方は" %}<a href="{% url 'login' %}">{% trans "ログイン" %}</a>{% trans "してください" %}</p>
+
     </div>
-
-    <div>
-        <p>{% trans "アカウントがまだない場合は" %}<a href="{% url 'register' %}">{% trans "こちら" %}</a></p>
-        
-    </div>
+    {% endif %}
 </div>
-
-{% else %}
-<div class="register-content"></div>
-    {% include 'title.html' %}
-    <form method="POST" action="">
-        {% csrf_token%}
-        
-        <label>{% trans "ユーザーネーム（他のユーザーに表示されることはありません）" %}</label>
-        <input type="text" name="username" placeholder="{% trans 'ユーザーネームを入力' %}"/>
-
-        <label>{% trans "パスワード（最低8文字）" %}</label>
-        <input type="password" name="password1" placeholder="{% trans 'パスワードを入力' %}"/>
-
-        <label>{% trans "再入力" %}</label>
-        <input type="password" name="password2" placeholder="{% trans 'パスワードを入力' %}"/>
-
-        <input type="submit" value="{% trans '作成' %}"/>
-
-        {% if messages %}
-        <ul class="messages">
-            {% for message in messages %}
-            <li>{{ message }}</li>
-            {% endfor %}
-        </ul>
-        {% endif %}
-
-    </form>
-
-    <p>{% trans "すでにアカウントをお持ちの方は" %}<a href="{% url 'login' %}">{% trans "ログイン" %}</a>{% trans "してください" %}</p>
-
-</div>
-{% endif %}
 {% endblock %}

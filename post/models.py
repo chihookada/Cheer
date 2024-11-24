@@ -17,8 +17,8 @@ class Post(models.Model):
     deleted = models.BooleanField(default=False)
     active = models.BooleanField(default=True) # is open for new selection
     referenceActive = models.BooleanField(default=True)
-    contentChecked = models.BooleanField(default=True) 
-    referenceChecked = models.BooleanField(default=True)
+    contentChecked = models.BooleanField(default=False) 
+    referenceChecked = models.BooleanField(default=False)
 
     def __str__(self):
         return self.content[0:50]
