@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-11-23 01:26+0900\n"
+"POT-Creation-Date: 2024-11-25 00:02+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,22 +19,21 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: home/templates/home/favorite.html:17
-#, fuzzy
-#| msgid "きょうのひとこと"
 msgid "すきなひとこと"
-msgstr "Message of the Day"
+msgstr "Favorite Messages"
 
 #: home/templates/home/favorite.html:42
 msgid "本当に削除しますか？この操作は取り消すことができません。"
-msgstr "Are you sure you want to delete this message? This action cannot be undone."
+msgstr ""
+"Are you sure you want to delete this message? This action cannot be undone."
 
 #: home/templates/home/favorite.html:44 home/templates/home/history.html:57
-#: post/templates/post/todays-msg.html:68
+#: post/templates/post/todays-msg.html:73
 msgid "いいえ"
 msgstr "No"
 
 #: home/templates/home/favorite.html:45 home/templates/home/history.html:58
-#: post/templates/post/todays-msg.html:69
+#: post/templates/post/todays-msg.html:74
 msgid "はい"
 msgstr "Yes"
 
@@ -43,10 +42,8 @@ msgid "データなし"
 msgstr "No data"
 
 #: home/templates/home/history.html:17
-#, fuzzy
-#| msgid "きょうのひとこと"
 msgid "かこのひとこと"
-msgstr "Message of the Day"
+msgstr "Message of the Past"
 
 #: home/templates/home/history.html:45
 msgid "受け取ったいいね数"
@@ -57,8 +54,6 @@ msgid "削除"
 msgstr "Delete"
 
 #: home/templates/home/history.html:54
-#, fuzzy
-#| msgid "もっと投稿しますか？"
 msgid "本当に削除しますか？"
 msgstr "Are you posting more?"
 
@@ -123,65 +118,85 @@ msgstr ""
 msgid "最終警告："
 msgstr "Final warning:"
 
-#: home/templates/home/settings.html:8
+#: home/templates/home/settings.html:16
 msgid "せってい"
 msgstr "Settings"
 
-#: login/templates/login/login-register.html:11
+#: home/templates/home/settings.html:20
+msgid "言語設定"
+msgstr "Language settings"
+
+#: home/templates/home/settings.html:32
+msgid "保存"
+msgstr "Save"
+
+#: login/templates/login/login-register.html:17
 msgid "ユーザーネーム"
 msgstr "Username"
 
-#: login/templates/login/login-register.html:12
-#: login/templates/login/login-register.html:42
+#: login/templates/login/login-register.html:18
+#: login/templates/login/login-register.html:48
 msgid "ユーザーネームを入力"
 msgstr "Enter username"
 
-#: login/templates/login/login-register.html:22
+#: login/templates/login/login-register.html:28
 msgid "パスワード"
 msgstr "Password"
 
-#: login/templates/login/login-register.html:23
-#: login/templates/login/login-register.html:45
-#: login/templates/login/login-register.html:48
+#: login/templates/login/login-register.html:29
+#: login/templates/login/login-register.html:51
+#: login/templates/login/login-register.html:54
 msgid "パスワードを入力"
 msgstr "Enter password"
 
-#: login/templates/login/login-register.html:25
-#: login/templates/login/login-register.html:62
+#: login/templates/login/login-register.html:31
+#: login/templates/login/login-register.html:68
 msgid "ログイン"
 msgstr "Login"
 
-#: login/templates/login/login-register.html:30
+#: login/templates/login/login-register.html:36
 msgid "アカウントがまだない場合は"
 msgstr "Dont' have an account? "
 
-#: login/templates/login/login-register.html:30
+#: login/templates/login/login-register.html:36
 msgid "こちら"
 msgstr "Register"
 
-#: login/templates/login/login-register.html:41
+#: login/templates/login/login-register.html:47
 msgid "ユーザーネーム（他のユーザーに表示されることはありません）"
 msgstr "Username (won't be displayed to other users)"
 
-#: login/templates/login/login-register.html:44
+#: login/templates/login/login-register.html:50
 msgid "パスワード（最低8文字）"
 msgstr "Password (minimum 8 characters)"
 
-#: login/templates/login/login-register.html:47
+#: login/templates/login/login-register.html:53
 msgid "再入力"
 msgstr "Re-enter"
 
-#: login/templates/login/login-register.html:50
+#: login/templates/login/login-register.html:56
 msgid "作成"
 msgstr "Register"
 
-#: login/templates/login/login-register.html:62
+#: login/templates/login/login-register.html:68
 msgid "すでにアカウントをお持ちの方は"
 msgstr "Already have an account?"
 
-#: login/templates/login/login-register.html:62
+#: login/templates/login/login-register.html:68
 msgid "してください"
 msgstr " "
+
+#: login/views.py:27
+msgid "エラーが発生しました。もう一度お試しください。"
+msgstr "An error occurred. Please try again."
+
+#: login/views.py:44
+msgid "未登録のユーザーです"
+msgstr "This username is not registered"
+
+#: login/views.py:51
+msgid "ユーザーネームかパスワードが間違っています"
+msgstr "Incorrect username or password"
 
 #: post/templates/post/completed.html:10
 msgid "すべてのメッセージを受けとり終わったようです。"
@@ -192,7 +207,7 @@ msgid "もっと投稿しますか？"
 msgstr "Are you posting more?"
 
 #: post/templates/post/completed.html:15 post/templates/post/posted.html:21
-#: post/templates/post/todays-msg.html:155
+#: post/templates/post/todays-msg.html:86
 msgid "投稿する"
 msgstr "Post your message"
 
@@ -223,14 +238,15 @@ msgid ""
 "中傷誹謗、差別的な内容、見た人を不快にする内容、住所・電話番号等個人を特定で"
 "きる内容等、本来の趣旨にそぐわない投稿は固く禁じます。"
 msgstr ""
-"Posts that deviate "
-"from this purpose, such as slander, libel, discriminatory content, content "
-"that makes viewers uncomfortable, or content that could inclue personal "
-"information including addresses and phone numbers, are strictly prohibited."
+"Posts that deviate from this purpose, such as slander, libel, discriminatory "
+"content, content that makes viewers uncomfortable, or content that could "
+"inclue personal information including addresses and phone numbers, are "
+"strictly prohibited."
 
 #: post/templates/post/new-post.html:29
 msgid "発覚した場合は以降、一切の投稿を禁じます。"
-msgstr "If this is discovered, you will be banned from making any further posts."
+msgstr ""
+"If this is discovered, you will be banned from making any further posts."
 
 #: post/templates/post/new-post.html:54
 msgid "最大100文字"
@@ -256,23 +272,31 @@ msgstr "Submit"
 msgid "投稿されました。ありがとうございました。"
 msgstr "Your message has been posted. Thank you!"
 
-#: post/templates/post/todays-msg.html:45
+#: post/templates/post/todays-msg.html:37
+msgid "翻訳する"
+msgstr "Traslate"
+
+#: post/templates/post/todays-msg.html:38
+msgid "原文に戻す"
+msgstr "See original"
+
+#: post/templates/post/todays-msg.html:50
 msgid "いいね"
 msgstr "Like"
 
-#: post/templates/post/todays-msg.html:58 templates/navbar.html:27
+#: post/templates/post/todays-msg.html:63 templates/navbar.html:27
 msgid "お気に入り"
 msgstr "Favorite"
 
-#: post/templates/post/todays-msg.html:66
+#: post/templates/post/todays-msg.html:71
 msgid "不適切な内容：<br>この投稿を通報しますか？"
 msgstr "Innapropriate content：<br>Report this post?"
 
-#: post/templates/post/todays-msg.html:74
+#: post/templates/post/todays-msg.html:79
 msgid "通報"
 msgstr "Report"
 
-#: post/templates/post/todays-msg.html:154
+#: post/templates/post/todays-msg.html:85
 msgid "今度はあなたの番です。"
 msgstr "Now, it's your turn"
 
